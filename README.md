@@ -1,4 +1,24 @@
 # tg-stickers-dl
+<p>
+   <a href="https://github.com/rroy233/tg-stickers-dl">
+      <img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/rroy233/tg-stickers-dl?style=flat-square">
+   </a>
+   <a href="https://github.com/rroy233/tg-stickers-dl/releases">
+      <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/rroy233/tg-stickers-dl?style=flat-square">
+   </a>
+   <a href="https://github.com/rroy233/tg-stickers-dl/blob/main/LICENSE">
+      <img alt="GitHub license" src="https://img.shields.io/github/license/rroy233/tg-stickers-dl?style=flat-square">
+   </a>
+   <a href="https://github.com/rroy233/tg-stickers-dl">
+      <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/rroy233/tg-stickers-dl/go?style=flat-square">
+   </a>
+   <a href="https://github.com/rroy233/tg-stickers-dl/commits/main">
+      <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/rroy233/tg-stickers-dl?style=flat-square">
+   </a>
+    <a href="https://t.me/stickers_download_bot">
+      <img alt="GitHub last commit" src="https://img.shields.io/badge/demo-%40stickers__download__bot-green?style=flat-square">
+   </a>
+</p>
 
 > 一个可以帮你下载表情包的telegram机器人
 
@@ -65,3 +85,5 @@ bash ./buildrun.sh
 bash ./run.sh 
 ```
 
+### LICENSE
+MIT
