@@ -11,7 +11,7 @@ import (
 )
 
 func Handle(update tgbotapi.Update) {
-	logger.Info.Println(utils.JsonEncode(update))
+	logger.Info.Println(utils.LogUserInfo(&update) + utils.JsonEncode(update))
 
 	//command
 	if update.Message != nil && update.Message.IsCommand() {

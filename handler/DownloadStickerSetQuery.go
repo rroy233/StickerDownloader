@@ -22,11 +22,13 @@ type downloadTask struct {
 }
 
 func DownloadStickerSetQuery(update tgbotapi.Update) {
+	userInfo := utils.LogUserInfo(&update)
+
 	stickerSet, err := bot.GetStickerSet(tgbotapi.GetStickerSetConfig{
 		Name: update.CallbackQuery.Message.ReplyToMessage.Sticker.SetName,
 	})
 	if err != nil {
-		logger.Error.Println("获取表情包-GetStickerSet失败:", err)
+		logger.Error.Println(userInfo+"获取表情包-GetStickerSet失败:", err)
 		utils.CallBackWithAlert(update.CallbackQuery.ID, "获取失败")
 	}
 
@@ -36,7 +38,7 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 	oMsg.ReplyToMessageID = update.CallbackQuery.Message.MessageID
 	msg, err := bot.Send(oMsg)
 	if err != nil {
-		logger.Error.Println("获取表情包-发送处理中信息失败:", err)
+		logger.Error.Println(userInfo+"获取表情包-发送处理中信息失败:", err)
 		utils.SendPlainText(&update, "发生错误")
 		return
 	}
@@ -45,7 +47,7 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 	folderName := fmt.Sprintf("./storage/tmp/stickers_%s_%d", stickerSet.Name, time.Now().UnixMicro())
 	err = os.Mkdir(folderName, 0777)
 	if err != nil || utils.IsExist(folderName) == false {
-		logger.Error.Println("获取表情包-创建目录失败:", err)
+		logger.Error.Println(userInfo+"获取表情包-创建目录失败:", err)
 		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, "失败-1001")
 		return
 	}
@@ -53,7 +55,7 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 	defer func() {
 		err = os.RemoveAll(folderName)
 		if err != nil {
-			logger.Error.Println("获取表情包-删除临时目录失败:", folderName, err)
+			logger.Error.Println(userInfo+"获取表情包-删除临时目录失败:", folderName, err)
 		}
 	}()
 
@@ -94,7 +96,7 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 		if task.finished+task.failed == task.total {
 			break
 		}
-		logger.Debug.Println("获取表情包-等待中-已用时", time.Now().Sub(timeStart).Seconds())
+		logger.Debug.Println(userInfo+"获取表情包-等待中-已用时", time.Now().Sub(timeStart).Seconds())
 		time.Sleep(1 * time.Second)
 	}
 	cancel()
@@ -102,7 +104,7 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 		zipFilePath := fmt.Sprintf("./storage/tmp/%s_%d.zip", stickerSet.Name, time.Now().UnixMicro())
 		err = utils.Compress(folderName, zipFilePath)
 		if err != nil {
-			logger.Error.Println("获取表情包-压缩失败:", err)
+			logger.Error.Println(userInfo+"获取表情包-压缩失败:", err)
 			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, "失败-1002")
 			return
 		}
@@ -113,31 +115,31 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 
 		fileStat, err := os.Stat(zipFilePath)
 		if err != nil {
-			logger.Error.Println("获取表情包-读取压缩包信息失败:", err)
+			logger.Error.Println(userInfo+"获取表情包-读取压缩包信息失败:", err)
 			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, "失败-1003")
 			return
 		}
 		if fileStat.Size() > 50*MB {
-			logger.Info.Println("获取表情包-正在上传文件(第三方文件托管平台)")
+			logger.Info.Println(userInfo + "获取表情包-正在上传文件(第三方文件托管平台)")
 			uploadTask := utils.NewUploadFile(zipFilePath)
 			err = uploadTask.Upload2FileHost()
 			if err != nil {
-				logger.Error.Println("获取表情包-上传失败:", err)
+				logger.Error.Println(userInfo+"获取表情包-上传失败:", err)
 				utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, "上传失败！")
 				return
 			}
 			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf("上传成功！！\n表情包名:%s\n文件大小:%s\n下载地址:%s\n", stickerSet.Name, uploadTask.InfoRes.Data.File.Metadata.Size.Readable, uploadTask.InfoRes.Data.File.Url.Short))
-			logger.Info.Println("获取表情包-上传文件(第三方文件托管平台)成功！！！")
+			logger.Info.Println(userInfo + "获取表情包-上传文件(第三方文件托管平台)成功！！！")
 		} else {
-			logger.Info.Println("获取表情包-正在上传文件(Telegram)")
+			logger.Info.Println(userInfo + "获取表情包-正在上传文件(Telegram)")
 			err = utils.SendFile(&update, zipFilePath)
 			if err != nil {
-				logger.Error.Println("获取表情包-上传失败:", err)
+				logger.Error.Println(userInfo+"获取表情包-上传失败:", err)
 				utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, "上传失败！")
 				return
 			}
 			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf("上传成功！！\n表情包名:%s\n文件大小:%dMB\n", stickerSet.Name, fileStat.Size()>>20))
-			logger.Info.Println("获取表情包-上传文件(Telegram)成功！！！")
+			logger.Info.Println(userInfo + "获取表情包-上传文件(Telegram)成功！！！")
 		}
 
 	} else {

@@ -72,6 +72,16 @@ func SendFile(update *tgbotapi.Update, filePath string) error {
 	return err
 }
 
+func LogUserInfo(update *tgbotapi.Update) string {
+	if update.Message != nil {
+		return fmt.Sprintf("[%s(@%s) %d]", update.Message.Chat.FirstName+update.Message.Chat.LastName, update.Message.Chat.UserName, update.Message.Chat.ID)
+	}
+	if update.CallbackQuery != nil {
+		return fmt.Sprintf("[%s(@%s) %d]", update.CallbackQuery.Message.Chat.FirstName+update.CallbackQuery.Message.Chat.LastName, update.CallbackQuery.Message.Chat.UserName, update.CallbackQuery.Message.Chat.ID)
+	}
+	return ""
+}
+
 func SendSticker(update *tgbotapi.Update, fileID string) {
 	if update.Message == nil {
 		return

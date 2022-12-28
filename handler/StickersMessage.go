@@ -10,12 +10,13 @@ import (
 )
 
 func StickerMessage(update tgbotapi.Update) {
+	userInfo := utils.LogUserInfo(&update)
 
 	oMsg := tgbotapi.NewMessage(update.Message.Chat.ID, "处理中...")
 	oMsg.ReplyToMessageID = update.Message.MessageID
 	msg, err := bot.Send(oMsg)
 	if err != nil {
-		logger.Error.Println("发送消息失败:", err)
+		logger.Error.Println(userInfo+"发送消息失败:", err)
 		return
 	}
 
@@ -23,14 +24,14 @@ func StickerMessage(update tgbotapi.Update) {
 		FileID: update.Message.Sticker.FileID,
 	})
 	if err != nil {
-		logger.Error.Println("获取文件失败:", err)
+		logger.Error.Println(userInfo+"获取文件失败:", err)
 	}
 
 	tempFilePath, err := utils.DownloadFile(remoteFile.Link(config.Get().General.BotToken))
 	if err != nil {
-		logger.Error.Println("下载文件失败:", err)
+		logger.Error.Println(userInfo+"下载文件失败:", err)
 	}
-	logger.Info.Println("已下载临时文件：", tempFilePath)
+	logger.Info.Println(userInfo+"已下载临时文件：", tempFilePath)
 
 	//删除临时文件
 	defer utils.RemoveFile(tempFilePath)
@@ -44,14 +45,14 @@ func StickerMessage(update tgbotapi.Update) {
 	outPath := fmt.Sprintf("./storage/tmp/convert_%d.gif", time.Now().UnixMicro())
 	err = utils.Mp4ToGif(tempFilePath, outPath)
 	if err != nil {
-		logger.Error.Println("转换文件失败:", err)
+		logger.Error.Println(userInfo+"转换文件失败:", err)
 		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, "转换文件失败")
 		return
 	}
 
 	err = utils.SendFile(&update, outPath)
 	if err != nil {
-		logger.Error.Println("SendFile失败:", err)
+		logger.Error.Println(userInfo+"SendFile失败:", err)
 		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, "发送文件失败")
 		return
 	}
@@ -60,7 +61,7 @@ func StickerMessage(update tgbotapi.Update) {
 		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("下载整套表情包", "DOWNLOAD_STICKERS_SET")),
 	)))
 	if err != nil {
-		logger.Error.Println("删除消息失败:", err)
+		logger.Error.Println(userInfo+"删除消息失败:", err)
 	}
 
 	utils.RemoveFile(outPath)
