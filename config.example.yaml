@@ -1,5 +1,6 @@
 general:
   bot_token: "xxx"
+  worker_num: 2
   download_worker_num: 3
   admin_uid: 0
   user_daily_limit: 10

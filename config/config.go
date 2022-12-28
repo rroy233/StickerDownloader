@@ -12,6 +12,7 @@ var cf *Config
 type Config struct {
 	General struct {
 		BotToken          string `yaml:"bot_token"`
+		WorkerNum         int    `yaml:"worker_num"`
 		DownloadWorkerNum int    `yaml:"download_worker_num"`
 		AdminUID          int64  `yaml:"admin_uid"`
 		UserDailyLimit    int    `yaml:"user_daily_limit"`

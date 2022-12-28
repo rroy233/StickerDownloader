@@ -18,8 +18,6 @@ var cancel context.CancelFunc
 var stopCtx context.Context
 var cancelCh chan int
 
-const WorkerNum = 2
-
 func main() {
 
 	//config
@@ -54,8 +52,8 @@ func main() {
 	u.Timeout = 60
 	updates := bot.GetUpdatesChan(u)
 	stopCtx, cancel = context.WithCancel(context.Background())
-	cancelCh = make(chan int, WorkerNum)
-	for i := 0; i < WorkerNum; i++ {
+	cancelCh = make(chan int, config.Get().General.WorkerNum)
+	for i := 0; i < config.Get().General.WorkerNum; i++ {
 		go worker(stopCtx, updates, cancelCh)
 	}
 
@@ -93,7 +91,7 @@ func worker(stopCtx context.Context, uc tgbotapi.UpdatesChannel, cancelCh chan i
 func waitForDone(cancelCh chan int) {
 	num := 0
 	for {
-		if num == WorkerNum {
+		if num == config.Get().General.WorkerNum {
 			break
 		}
 		<-cancelCh
