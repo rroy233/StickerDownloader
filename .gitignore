@@ -1,0 +1,5 @@
+/log
+/ffmpeg/*
+/storage/*
+config.yaml
+/.idea
