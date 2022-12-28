@@ -21,13 +21,6 @@ type Config struct {
 		ReportUrl      string `yaml:"report_url"`
 		ReportQueryKey string `yaml:"report_query_key"`
 	} `yaml:"logger"`
-	DB struct {
-		Server   string `yaml:"server"`
-		Port     string `yaml:"port"`
-		Username string `yaml:"username"`
-		Password string `yaml:"password"`
-		DB       string `yaml:"db"`
-	} `yaml:"db"`
 	Redis struct {
 		Server   string `yaml:"server"`
 		Port     string `yaml:"port"`
