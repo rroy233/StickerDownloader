@@ -9,9 +9,6 @@
    <a href="https://github.com/rroy233/tg-stickers-dl/blob/main/LICENSE">
       <img alt="GitHub license" src="https://img.shields.io/github/license/rroy233/tg-stickers-dl?style=flat-square">
    </a>
-   <a href="https://github.com/rroy233/tg-stickers-dl">
-      <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/rroy233/tg-stickers-dl/go?style=flat-square">
-   </a>
    <a href="https://github.com/rroy233/tg-stickers-dl/commits/main">
       <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/rroy233/tg-stickers-dl?style=flat-square">
    </a>
@@ -22,11 +19,15 @@
 
 > 一个可以帮你下载表情包的telegram机器人
 
+中文 | [EN](README_en.md)
+
 ### 功能
 
 * 发送表情给bot，bot为您转换为便于保存的gif文件
 * 下载单个表情
 * 下载整个表情包
+
+![cover](docs/demo.gif)
 
 ### 运行要求
 
