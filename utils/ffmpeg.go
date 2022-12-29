@@ -10,7 +10,7 @@ import (
 
 type logWriter struct{}
 
-func Mp4ToGif(inFile, outFile string) error {
+func ConvertToGif(inFile, outFile string) error {
 	cmd := exec.Command("./ffmpeg/"+getFfmpeg(), strings.Split(fmt.Sprintf("-y -i %s -vf scale=-1:-1 %s", inFile, outFile), " ")...)
 	cmd.Stdout = logWriter{}
 

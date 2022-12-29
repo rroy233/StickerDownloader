@@ -2,7 +2,7 @@ package utils
 
 import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
-func entityBold(text, boldPart string) tgbotapi.MessageEntity {
+func EntityBold(text, boldPart string) tgbotapi.MessageEntity {
 	offset, length := getPartIndex(text, boldPart)
 	return tgbotapi.MessageEntity{
 		Type:   "bold",
@@ -11,7 +11,7 @@ func entityBold(text, boldPart string) tgbotapi.MessageEntity {
 	}
 }
 
-func entityUnderline(text, boldPart string) tgbotapi.MessageEntity {
+func EntityUnderline(text, boldPart string) tgbotapi.MessageEntity {
 	offset, length := getPartIndex(text, boldPart)
 	return tgbotapi.MessageEntity{
 		Type:   "underline",
@@ -20,7 +20,7 @@ func entityUnderline(text, boldPart string) tgbotapi.MessageEntity {
 	}
 }
 
-func entityLink(text, part, url string) tgbotapi.MessageEntity {
+func EntityLink(text, part, url string) tgbotapi.MessageEntity {
 	offset, length := getPartIndex(text, part)
 	return tgbotapi.MessageEntity{
 		Type:   "url",
@@ -30,7 +30,7 @@ func entityLink(text, part, url string) tgbotapi.MessageEntity {
 	}
 }
 
-func entityMention(text, part string) tgbotapi.MessageEntity {
+func EntityMention(text, part string) tgbotapi.MessageEntity {
 	offset, length := getPartIndex(text, part)
 	return tgbotapi.MessageEntity{
 		Type:   "mention",
@@ -39,7 +39,7 @@ func entityMention(text, part string) tgbotapi.MessageEntity {
 	}
 }
 
-func entityTag(text, part string) tgbotapi.MessageEntity {
+func EntityTag(text, part string) tgbotapi.MessageEntity {
 	offset, length := getPartIndex(text, part)
 	return tgbotapi.MessageEntity{
 		Type:   "hashtag",
@@ -48,7 +48,7 @@ func entityTag(text, part string) tgbotapi.MessageEntity {
 	}
 }
 
-func entityCode(text, part string) tgbotapi.MessageEntity {
+func EntityCode(text, part string) tgbotapi.MessageEntity {
 	offset, length := getPartIndex(text, part)
 	return tgbotapi.MessageEntity{
 		Type:   "code",
@@ -57,7 +57,7 @@ func entityCode(text, part string) tgbotapi.MessageEntity {
 	}
 }
 
-func entityTextLink(text, part, url string) tgbotapi.MessageEntity {
+func EntityTextLink(text, part, url string) tgbotapi.MessageEntity {
 	offset, length := getPartIndex(text, part)
 	return tgbotapi.MessageEntity{
 		Type:   "text_link",

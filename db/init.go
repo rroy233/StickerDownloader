@@ -5,6 +5,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/rroy233/logger"
 	"github.com/rroy233/tg-stickers-dl/config"
+	"github.com/rroy233/tg-stickers-dl/languages"
 )
 
 // var db *sqlx.DB
@@ -20,9 +21,9 @@ func Init() {
 	})
 	err := rdb.Ping(context.Background()).Err()
 	if err != nil {
-		logger.FATAL.Fatalln("[系统服务][异常]Redis启动失败:", err)
+		logger.FATAL.Fatalln(languages.Get().System.DbRedisStartFailed, err)
 		return
 	}
-	logger.Info.Println("[系统服务][成功]Redis已连接")
+	logger.Info.Println(languages.Get().System.DbRedisConnected)
 	return
 }

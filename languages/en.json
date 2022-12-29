@@ -1,0 +1,32 @@
+{
+  "system":{
+    "running":"Program running...",
+    "stop_running": "Program stopped!",
+    "db_redis_start_failed": "Failed to start Redis:",
+    "db_redis_connected": "Redis connected",
+    "ffmpeg_not_exist": "%s not exist!! Please put executable into ./ffmpeg folder\n"
+  },
+  "bot_msg": {
+    "processing": "Processing...",
+    "downloading_with_progress": "Downloading[%d/%d]...",
+    "uploaded_third_party": "Success!!\nSticker Name:%s\nSize:%s\nDownload:%s\n",
+    "uploaded_telegram": "Success!!\nSticker Name:%s\nSize:%dMB\n",
+    "get_limit_command": "Your remaining usage times are: %d",
+    "start_command": "Welcome！\n\nPlease send sticker to Bot and it will help you convert into gif file!!!\nrepo:https://github.com/rroy233/tg-stickers-dl\n\nSend /help for help",
+    "help_command": "Usage:\n\nPlease send sticker to Bot and it will help you convert into gif file!!!\nYou are allowed to use 10 times per 24 hour currently\n\nCommand List:\n /help - Help\n /getlimit - Get remaining usage times",
+    "convert_completed": "Convert completed！",
+    "converted_waiting_upload": "Convert completed(%d success / %d failed ). Uploading file...",
+    "download_sticker_set": "Download All",
+    "reload_config_success": "Reload config successfully!!",
+    "err_no_permission": "Permission denied!!",
+    "err_reach_limit": "Your are only allow to use %d times per 24h currently, and your usage reached limitation.",
+    "err_failed_to_download": "Failed to download",
+    "err_sys_failure_occurred": "System Failure!!",
+    "err_failed": "Failed!!",
+    "err_timeout": "Timeout!!!",
+    "err_upload_failed": "Failed to upload!!!",
+    "err_sticker_not_support": "Sticker not support!",
+    "err_convert_failed": "Failed to convert!!",
+    "err_send_file_failed": "Failed to send file!!!"
+  }
+}

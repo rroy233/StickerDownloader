@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/logger"
 	"github.com/rroy233/tg-stickers-dl/config"
+	"github.com/rroy233/tg-stickers-dl/languages"
 	"github.com/rroy233/tg-stickers-dl/utils"
 	"os"
 	"sync/atomic"
@@ -22,40 +23,40 @@ type downloadTask struct {
 }
 
 func DownloadStickerSetQuery(update tgbotapi.Update) {
-	userInfo := utils.LogUserInfo(&update)
+	userInfo := utils.GetLogPrefixCallbackQuery(&update)
 
 	stickerSet, err := bot.GetStickerSet(tgbotapi.GetStickerSetConfig{
 		Name: update.CallbackQuery.Message.ReplyToMessage.Sticker.SetName,
 	})
 	if err != nil {
-		logger.Error.Println(userInfo+"获取表情包-GetStickerSet失败:", err)
-		utils.CallBackWithAlert(update.CallbackQuery.ID, "获取失败")
+		logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to GetStickerSet:", err)
+		utils.CallBackWithAlert(update.CallbackQuery.ID, languages.Get().BotMsg.ErrFailedToDownload)
 	}
 
 	utils.CallBack(update.CallbackQuery.ID, "ok")
 
-	oMsg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "正在处理...")
+	oMsg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, languages.Get().BotMsg.Processing)
 	oMsg.ReplyToMessageID = update.CallbackQuery.Message.MessageID
 	msg, err := bot.Send(oMsg)
 	if err != nil {
-		logger.Error.Println(userInfo+"获取表情包-发送处理中信息失败:", err)
-		utils.SendPlainText(&update, "发生错误")
+		logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to send <processing> msg:", err)
+		utils.SendPlainText(&update, languages.Get().BotMsg.ErrSysFailureOccurred)
 		return
 	}
 
-	//创建目录
+	//create temp folder
 	folderName := fmt.Sprintf("./storage/tmp/stickers_%s_%d", stickerSet.Name, time.Now().UnixMicro())
 	err = os.Mkdir(folderName, 0777)
 	if err != nil || utils.IsExist(folderName) == false {
-		logger.Error.Println(userInfo+"获取表情包-创建目录失败:", err)
-		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, "失败-1001")
+		logger.Error.Println(userInfo+"DownloadStickerSetQuery-create folder failed:", err)
+		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get().BotMsg.ErrFailed+"-1001")
 		return
 	}
-	//删除临时目录
+	//delete temp folder
 	defer func() {
 		err = os.RemoveAll(folderName)
 		if err != nil {
-			logger.Error.Println(userInfo+"获取表情包-删除临时目录失败:", folderName, err)
+			logger.Error.Println(userInfo+"DownloadStickerSetQuery-delete temp folder failed:", folderName, err)
 		}
 	}()
 
@@ -79,24 +80,24 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 			case <-cancelCtx.Done():
 				return
 			default:
-				//实时更新进度
-				utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf("正在下载[%d/%d]...", task.finished+task.failed, task.total))
+				//update realtime progress
+				utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf(languages.Get().BotMsg.DownloadingWithProgress, task.finished+task.failed, task.total))
 				time.Sleep(1 * time.Second)
 			}
 		}
 	}()
 
-	//等待
+	//wait
 	success := true
 	for {
-		if time.Now().Sub(timeStart).Seconds() > 60 { //60秒超时
+		if time.Now().Sub(timeStart).Seconds() > 60 { //60s timeout
 			success = false
 			break
 		}
 		if task.finished+task.failed == task.total {
 			break
 		}
-		logger.Debug.Println(userInfo+"获取表情包-等待中-已用时", time.Now().Sub(timeStart).Seconds())
+		logger.Debug.Println(userInfo+"DownloadStickerSetQuery-pending-used", time.Now().Sub(timeStart).Seconds())
 		time.Sleep(1 * time.Second)
 	}
 	cancel()
@@ -104,46 +105,59 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 		zipFilePath := fmt.Sprintf("./storage/tmp/%s_%d.zip", stickerSet.Name, time.Now().UnixMicro())
 		err = utils.Compress(folderName, zipFilePath)
 		if err != nil {
-			logger.Error.Println(userInfo+"获取表情包-压缩失败:", err)
-			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, "失败-1002")
+			logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to compress files:", err)
+			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get().BotMsg.ErrFailed+"-1002")
 			return
 		}
-		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf("任务完成(成功%d/失败%d)，正在上传文件。。。", task.finished, task.failed))
+		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf(languages.Get().BotMsg.ConvertedWaitingUpload, task.finished, task.failed))
 
-		//删除
+		//delete
 		defer utils.RemoveFile(zipFilePath)
 
 		fileStat, err := os.Stat(zipFilePath)
 		if err != nil {
-			logger.Error.Println(userInfo+"获取表情包-读取压缩包信息失败:", err)
-			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, "失败-1003")
+			logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to read zip file info:", err)
+			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get().BotMsg.ErrFailed+"-1003")
 			return
 		}
 		if fileStat.Size() > 50*MB {
-			logger.Info.Println(userInfo + "获取表情包-正在上传文件(第三方文件托管平台)")
+			logger.Info.Println(userInfo + "DownloadStickerSetQuery-uploading(third party)")
 			uploadTask := utils.NewUploadFile(zipFilePath)
 			err = uploadTask.Upload2FileHost()
 			if err != nil {
-				logger.Error.Println(userInfo+"获取表情包-上传失败:", err)
-				utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, "上传失败！")
+				logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to upload:", err)
+				utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get().BotMsg.ErrUploadFailed)
 				return
 			}
-			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf("上传成功！！\n表情包名:%s\n文件大小:%s\n下载地址:%s\n", stickerSet.Name, uploadTask.InfoRes.Data.File.Metadata.Size.Readable, uploadTask.InfoRes.Data.File.Url.Short))
-			logger.Info.Println(userInfo + "获取表情包-上传文件(第三方文件托管平台)成功！！！")
+			text := fmt.Sprintf(languages.Get().BotMsg.UploadedThirdParty, stickerSet.Name, uploadTask.InfoRes.Data.File.Metadata.Size.Readable, uploadTask.InfoRes.Data.File.Url.Short)
+			utils.EditMsgText(
+				update.CallbackQuery.Message.Chat.ID, msg.MessageID,
+				text,
+				utils.EntityBold(text, stickerSet.Name),
+				utils.EntityBold(text, uploadTask.InfoRes.Data.File.Metadata.Size.Readable),
+			)
+			logger.Info.Println(userInfo + "DownloadStickerSetQuery-upload (third party) successfully！！！")
 		} else {
-			logger.Info.Println(userInfo + "获取表情包-正在上传文件(Telegram)")
+			logger.Info.Println(userInfo + "DownloadStickerSetQuery-uploading(Telegram)")
 			err = utils.SendFile(&update, zipFilePath)
 			if err != nil {
-				logger.Error.Println(userInfo+"获取表情包-上传失败:", err)
-				utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, "上传失败！")
+				logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to upload:", err)
+				utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get().BotMsg.ErrUploadFailed)
 				return
 			}
-			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf("上传成功！！\n表情包名:%s\n文件大小:%dMB\n", stickerSet.Name, fileStat.Size()>>20))
-			logger.Info.Println(userInfo + "获取表情包-上传文件(Telegram)成功！！！")
+			text := fmt.Sprintf(languages.Get().BotMsg.UploadedTelegram, stickerSet.Name, fileStat.Size()>>20)
+			utils.EditMsgText(
+				update.CallbackQuery.Message.Chat.ID,
+				msg.MessageID,
+				text,
+				utils.EntityBold(text, stickerSet.Name),
+				utils.EntityBold(text, fmt.Sprintf("%d", fileStat.Size()>>20)),
+			)
+			logger.Info.Println(userInfo + "DownloadStickerSetQuery-upload(Telegram) successfully！！！")
 		}
 
 	} else {
-		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf("任务超时!!!"))
+		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf(languages.Get().BotMsg.ErrTimeout))
 	}
 
 	return
@@ -162,24 +176,24 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 				FileID: sticker.FileID,
 			})
 			if err != nil {
-				logger.Error.Printf("获取表情包[%d/%d]-获取文件失败:%s", i, sum, err.Error())
+				logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to get file:%s", i, sum, err.Error())
 				atomic.AddInt32(&task.failed, 1)
 				continue
 			}
 
 			tempFilePath, err := utils.DownloadFile(remoteFile.Link(config.Get().General.BotToken))
 			if err != nil {
-				logger.Error.Printf("获取表情包[%d/%d]-下载文件失败:%s", i, sum, err.Error())
+				logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to download:%s", i, sum, err.Error())
 				atomic.AddInt32(&task.failed, 1)
 				continue
 			}
-			logger.Info.Printf("获取表情包[%d/%d]-已下载临时文件：%s\n", i, sum, tempFilePath)
+			logger.Info.Printf("DownloadStickerSetQuery[%d/%d]-temp file downloaded：%s\n", i, sum, tempFilePath)
 
 			outFilePath := fmt.Sprintf("%s/%d.gif", task.folderName, i)
-			err = utils.Mp4ToGif(tempFilePath, outFilePath)
+			err = utils.ConvertToGif(tempFilePath, outFilePath)
 			utils.RemoveFile(tempFilePath)
 			if err != nil {
-				logger.Error.Printf("获取表情包[%d/%d]-转换失败：%s\n", i, sum, err.Error())
+				logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to convert：%s\n", i, sum, err.Error())
 				atomic.AddInt32(&task.failed, 1)
 				continue
 			}

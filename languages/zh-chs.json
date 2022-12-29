@@ -1,0 +1,32 @@
+{
+	"system":{
+		"running":"正在运行。。。",
+		"stop_running": "已结束运行！",
+		"db_redis_start_failed": "Redis启动失败:",
+		"db_redis_connected": "Redis已连接",
+		"ffmpeg_not_exist": "%s不存在！！请到官网下载可执行文件并重命名放入./ffmpeg文件夹\n"
+	},
+	"bot_msg": {
+		"processing": "正在处理...",
+		"downloading_with_progress": "正在下载[%d/%d]...",
+		"uploaded_third_party": "上传成功！！\n表情包名:%s\n文件大小:%s\n下载地址:%s\n",
+		"uploaded_telegram": "上传成功！！\n表情包名:%s\n文件大小:%dMB\n",
+		"get_limit_command": "您当前可用次数为:%d次",
+		"start_command": "欢迎使用！\n请直接给bot发送表情，它会帮你转换为gif！\n项目地址:https://github.com/rroy233/tg-stickers-dl\n\n发送 /help 查看帮助",
+		"help_command": "使用帮助:\n请直接给bot发送表情，它会帮你转换为gif！\n当前每个用户每日可使用10次\n\n命令列表:\n /help - 查看帮助\n /getlimit - 查看当日可用使用次数",
+		"convert_completed": "已完成转换！",
+		"converted_waiting_upload": "任务完成(成功%d/失败%d)，正在上传文件。。。",
+		"download_sticker_set": "下载整套表情包",
+		"reload_config_success": "已重新加载配置文件",
+		"err_no_permission": "您无权限使用",
+		"err_reach_limit": "您目前每24小时只允许使用%d次，您的使用已达到限制。",
+		"err_failed_to_download": "获取失败",
+		"err_sys_failure_occurred": "系统异常",
+		"err_failed": "失败",
+		"err_timeout": "任务超时！！！",
+		"err_upload_failed": "上传失败！！！",
+		"err_sticker_not_support": "该表情不支持下载",
+		"err_convert_failed": "转换文件失败",
+		"err_send_file_failed": "发送文件失败"
+	}
+}

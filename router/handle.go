@@ -7,6 +7,7 @@ import (
 	"github.com/rroy233/tg-stickers-dl/config"
 	"github.com/rroy233/tg-stickers-dl/db"
 	"github.com/rroy233/tg-stickers-dl/handler"
+	"github.com/rroy233/tg-stickers-dl/languages"
 	"github.com/rroy233/tg-stickers-dl/utils"
 )
 
@@ -17,8 +18,12 @@ func Handle(update tgbotapi.Update) {
 	if update.Message != nil && update.Message.IsCommand() {
 		logger.Info.Println(update.Message.Command())
 		switch update.Message.Command() {
+		case "start":
+			handler.StartCommand(update)
 		case "help":
 			handler.HelpCommand(update)
+		case "reload":
+			handler.ReloadConfigCommand(update)
 		case "getlimit":
 			handler.GetLimitCommand(update)
 		}
@@ -26,9 +31,8 @@ func Handle(update tgbotapi.Update) {
 
 	//Sticker message
 	if update.Message != nil && update.Message.Sticker != nil {
-		//判断是否达到限制
 		if db.CheckLimit(update.Message.From.ID) == true {
-			utils.SendPlainText(&update, fmt.Sprintf("普通用户每24h限制使用%d次，您已达到今日限制！！", config.Get().General.UserDailyLimit))
+			utils.SendPlainText(&update, fmt.Sprintf(languages.Get().BotMsg.ErrReachLimit, config.Get().General.UserDailyLimit))
 			return
 		}
 		handler.StickerMessage(update)
@@ -38,9 +42,8 @@ func Handle(update tgbotapi.Update) {
 	if update.CallbackQuery != nil {
 		switch update.CallbackQuery.Data {
 		case "DOWNLOAD_STICKERS_SET":
-			//判断是否达到限制
 			if db.CheckLimit(update.CallbackQuery.Message.From.ID) == true {
-				utils.CallBackWithAlert(update.CallbackQuery.ID, fmt.Sprintf("普通用户每24h限制使用%d次，您已达到今日限制！！", config.Get().General.UserDailyLimit))
+				utils.CallBackWithAlert(update.CallbackQuery.ID, fmt.Sprintf(languages.Get().BotMsg.ErrReachLimit, config.Get().General.UserDailyLimit))
 				return
 			}
 			handler.DownloadStickerSetQuery(update)

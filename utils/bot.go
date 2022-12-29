@@ -67,7 +67,7 @@ func SendFile(update *tgbotapi.Update, filePath string) error {
 
 	_, err := bot.SendMediaGroup(msg)
 	if err != nil {
-		logger.Error.Println("上传文件失败：", err)
+		logger.Error.Println("failed to send file：", err)
 	}
 	return err
 }
@@ -160,11 +160,12 @@ func DownloadFile(fileUrl string) (string, error) {
 	return fileName, nil
 }
 
-func EditMsgText(chatID int64, msgID int, msg string) {
-	_, err := bot.Send(tgbotapi.NewEditMessageText(chatID, msgID, msg))
-	if err != nil {
-		logger.Error.Println("[EditMsgText]bot.Send失败:", err)
+func EditMsgText(chatID int64, msgID int, msg string, entity ...tgbotapi.MessageEntity) {
+	newMsg := tgbotapi.NewEditMessageText(chatID, msgID, msg)
+	if len(entity) != 0 {
+		newMsg.Entities = entity
 	}
+	addToSendQueue(newMsg)
 	return
 }
 
@@ -197,7 +198,7 @@ func CallBackWithAlert(callbackQueryID string, text string) {
 	return
 }
 
-func getLogPrefixMessage(update *tgbotapi.Update) string {
+func GetLogPrefixMessage(update *tgbotapi.Update) string {
 	return fmt.Sprintf("[Message][User:%d @%s %s][Chat:%s]",
 		update.Message.From.ID,
 		update.Message.From.UserName,
@@ -206,7 +207,7 @@ func getLogPrefixMessage(update *tgbotapi.Update) string {
 	)
 }
 
-func getLogPrefixCallbackQuery(update *tgbotapi.Update) string {
+func GetLogPrefixCallbackQuery(update *tgbotapi.Update) string {
 	return fmt.Sprintf("[CallbackQuery][User:%d @%s %s][Chat:%s]",
 		update.CallbackQuery.From.ID,
 		update.CallbackQuery.From.UserName,
@@ -224,18 +225,12 @@ func getPartIndex(text, part string) (offset, length int) {
 	i := 0
 	j := 0
 
-	//debug
-	//log.Println("textUTF16=", textUTF16)
-	//log.Println("PartUTF16=", PartUTF16)
-
 	for {
 		//越界
 		if i > len(textUTF16)-1 || j > len(PartUTF16) {
 			offset = -1
 			break
 		}
-		//debug
-		//log.Printf("offset=%d,textUTF16[%d]=%d,PartUTF16[%d]=%d\n", offset, i, textUTF16[i], j, PartUTF16[j])
 
 		//判断
 		if textUTF16[i] == PartUTF16[j] {

@@ -5,18 +5,19 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/logger"
 	"github.com/rroy233/tg-stickers-dl/config"
+	"github.com/rroy233/tg-stickers-dl/languages"
 	"github.com/rroy233/tg-stickers-dl/utils"
 	"time"
 )
 
 func StickerMessage(update tgbotapi.Update) {
-	userInfo := utils.LogUserInfo(&update)
+	userInfo := utils.GetLogPrefixMessage(&update)
 
-	oMsg := tgbotapi.NewMessage(update.Message.Chat.ID, "处理中...")
+	oMsg := tgbotapi.NewMessage(update.Message.Chat.ID, languages.Get().BotMsg.Processing)
 	oMsg.ReplyToMessageID = update.Message.MessageID
 	msg, err := bot.Send(oMsg)
 	if err != nil {
-		logger.Error.Println(userInfo+"发送消息失败:", err)
+		logger.Error.Println(userInfo+"failed to send msg:", err)
 		return
 	}
 
@@ -24,44 +25,44 @@ func StickerMessage(update tgbotapi.Update) {
 		FileID: update.Message.Sticker.FileID,
 	})
 	if err != nil {
-		logger.Error.Println(userInfo+"获取文件失败:", err)
+		logger.Error.Println(userInfo+"failed to get file:", err)
 	}
 
 	tempFilePath, err := utils.DownloadFile(remoteFile.Link(config.Get().General.BotToken))
 	if err != nil {
-		logger.Error.Println(userInfo+"下载文件失败:", err)
+		logger.Error.Println(userInfo+"failed to download file:", err)
 	}
-	logger.Info.Println(userInfo+"已下载临时文件：", tempFilePath)
+	logger.Info.Println(userInfo+"temp file downloaded：", tempFilePath)
 
-	//删除临时文件
+	//delete temp file
 	defer utils.RemoveFile(tempFilePath)
 
-	//判断文件格式
+	//check file type
 	if utils.GetFileExtName(tempFilePath) != "webp" && utils.GetFileExtName(tempFilePath) != "webm" {
-		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, "该表情不支持下载")
+		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get().BotMsg.ErrStickerNotSupport)
 		return
 	}
 
 	outPath := fmt.Sprintf("./storage/tmp/convert_%d.gif", time.Now().UnixMicro())
-	err = utils.Mp4ToGif(tempFilePath, outPath)
+	err = utils.ConvertToGif(tempFilePath, outPath)
 	if err != nil {
-		logger.Error.Println(userInfo+"转换文件失败:", err)
-		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, "转换文件失败")
+		logger.Error.Println(userInfo+"failed to convert:", err)
+		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get().BotMsg.ErrConvertFailed)
 		return
 	}
 
 	err = utils.SendFile(&update, outPath)
 	if err != nil {
-		logger.Error.Println(userInfo+"SendFile失败:", err)
-		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, "发送文件失败")
+		logger.Error.Println(userInfo+"failed to SendFile:", err)
+		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get().BotMsg.ErrSendFileFailed)
 		return
 	}
 
-	_, err = bot.Request(tgbotapi.NewEditMessageTextAndMarkup(update.Message.Chat.ID, msg.MessageID, "已完成转换！", tgbotapi.NewInlineKeyboardMarkup(
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("下载整套表情包", "DOWNLOAD_STICKERS_SET")),
+	_, err = bot.Request(tgbotapi.NewEditMessageTextAndMarkup(update.Message.Chat.ID, msg.MessageID, languages.Get().BotMsg.ConvertCompleted, tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(languages.Get().BotMsg.DownloadStickerSet, "DOWNLOAD_STICKERS_SET")),
 	)))
 	if err != nil {
-		logger.Error.Println(userInfo+"删除消息失败:", err)
+		logger.Error.Println(userInfo+"failed to delete msg:", err)
 	}
 
 	utils.RemoveFile(outPath)

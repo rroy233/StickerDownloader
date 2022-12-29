@@ -6,7 +6,7 @@ import (
 	"github.com/rroy233/tg-stickers-dl/utils"
 )
 
-func HelpCommand(update tgbotapi.Update) {
-	utils.SendPlainText(&update, languages.Get().BotMsg.HelpCommand)
+func StartCommand(update tgbotapi.Update) {
+	utils.SendPlainText(&update, languages.Get().BotMsg.StartCommand)
 	return
 }

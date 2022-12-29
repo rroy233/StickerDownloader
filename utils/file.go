@@ -95,12 +95,12 @@ func (f *UploadFile) Upload2FileHost() error {
 	writer := multipart.NewWriter(body)
 	part, err := writer.CreateFormFile("file", f.FilePath)
 	if err != nil {
-		logger.Error.Println("上传文件-CreateFormFile失败", err)
+		logger.Error.Println("Upload2FileHost-CreateFormFile failed", err)
 		return err
 	}
 	_, err = io.Copy(part, file)
 	if err != nil {
-		logger.Error.Println("上传文件-io.Copy失败", err)
+		logger.Error.Println("Upload2FileHost-io.Copy failed", err)
 		return err
 	}
 	writer.Close()
@@ -110,27 +110,27 @@ func (f *UploadFile) Upload2FileHost() error {
 	client := &http.Client{Timeout: 60 * time.Second}
 	resp, err := client.Do(r)
 	if err != nil {
-		logger.Error.Println("上传文件-http请求失败", err)
+		logger.Error.Println("Upload2FileHost-http request err:", err)
 		return err
 	}
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		logger.Error.Println("上传文件-读取http body失败", err)
+		logger.Error.Println("Upload2FileHost-failed to read http body:", err)
 		return err
 	}
 
-	logger.Info.Println("上传文件-api返回:", string(data))
+	logger.Info.Println("Upload2FileHost-api return:", string(data))
 
 	uploadApiRes := new(fileHostUploadResp)
 	err = json.Unmarshal(data, uploadApiRes)
 	if err != nil {
-		logger.Error.Println("上传文件-json解析失败", err)
+		logger.Error.Println("Upload2FileHost-failed to parse body:", err)
 		return err
 	}
 	if uploadApiRes.Status == false {
-		logger.Error.Println("上传文件-api返回错误:", uploadApiRes.Errors.File)
+		logger.Error.Println("Upload2FileHost-api return error:", uploadApiRes.Errors.File)
 		return err
 	}
 
@@ -138,7 +138,7 @@ func (f *UploadFile) Upload2FileHost() error {
 
 	//获取信息
 	if err := f.getInfo(); err != nil {
-		logger.Error.Println("获取上传文件信息-错误:", err)
+		logger.Error.Println("Upload2FileHost-getInfo error:", err)
 		return err
 	}
 
@@ -167,7 +167,7 @@ func (f *UploadFile) getInfo() error {
 		return err
 	}
 
-	logger.Info.Println("获取上传文件信息-api返回:", string(data))
+	logger.Info.Println("Upload2FileHost-api return:", string(data))
 
 	infoApiRes := new(fileHostInfoResp)
 	err = json.Unmarshal(data, infoApiRes)
@@ -276,6 +276,6 @@ func GetFileExtName(fileName string) string {
 func CleanTmp() {
 	err := os.RemoveAll("./storage/tmp")
 	if err != nil {
-		logger.Error.Println("tmp文件夹清理失败", err)
+		logger.Error.Println("failed to clean temp files", err)
 	}
 }

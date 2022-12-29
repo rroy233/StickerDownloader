@@ -7,6 +7,7 @@ import (
 	"github.com/rroy233/tg-stickers-dl/config"
 	"github.com/rroy233/tg-stickers-dl/db"
 	"github.com/rroy233/tg-stickers-dl/handler"
+	"github.com/rroy233/tg-stickers-dl/languages"
 	"github.com/rroy233/tg-stickers-dl/router"
 	"github.com/rroy233/tg-stickers-dl/utils"
 	"os"
@@ -36,13 +37,16 @@ func main() {
 			NotUseJson: true,
 		})
 
+	//language
+	languages.Init(config.Get().General.Language)
+
 	var err error
 	bot, err = tgbotapi.NewBotAPI(config.Get().General.BotToken)
 	if err != nil {
 		logger.FATAL.Fatalln(err.Error())
 	}
 
-	//初始化
+	//init
 	utils.Init(bot)
 	handler.Init(bot)
 	config.Init()
@@ -57,14 +61,14 @@ func main() {
 		go worker(stopCtx, updates, cancelCh)
 	}
 
-	logger.Info.Println("正在运行。。。")
+	logger.Info.Println(languages.Get().System.Running)
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt, os.Kill)
 	<-sigCh
 
 	Stop()
-	logger.Info.Println("已结束运行！")
+	logger.Info.Println(languages.Get().System.StopRunning)
 
 }
 
@@ -72,7 +76,7 @@ func Stop() {
 	cancel()
 	waitForDone(cancelCh)
 
-	//清理临时文件
+	//clean temp files
 	utils.CleanTmp()
 }
 
