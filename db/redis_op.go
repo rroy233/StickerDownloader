@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/tg-stickers-dl/config"
 	"strconv"
 	"time"
@@ -11,7 +12,15 @@ import (
 const ServicePrefix = "StickerDl"
 
 // CheckLimit 用户是否已达到今日限额
-func CheckLimit(UID int64) bool {
+func CheckLimit(update *tgbotapi.Update) bool {
+	UID := int64(0)
+	if update.Message != nil {
+		UID = update.Message.Chat.ID
+	} else if update.CallbackQuery != nil {
+		UID = update.CallbackQuery.Message.Chat.ID
+	} else {
+		return true
+	}
 	if UID == config.Get().General.AdminUID {
 		return false
 	}
