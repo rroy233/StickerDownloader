@@ -13,7 +13,7 @@
 		"uploaded_telegram": "上传成功！！\n表情包名:%s\n文件大小:%dMB\n",
 		"get_limit_command": "您当前可用次数为:%d次",
 		"start_command": "欢迎使用！\n请直接给bot发送表情，它会帮你转换为gif！\n项目地址:https://github.com/rroy233/tg-stickers-dl\n\n发送 /help 查看帮助",
-		"help_command": "使用帮助:\n请直接给bot发送表情，它会帮你转换为gif！\n当前每个用户每日可使用10次\n\n命令列表:\n /help - 查看帮助\n /getlimit - 查看当日可用使用次数",
+		"help_command": "使用帮助:\n请直接给bot发送表情，它会帮你转换为gif！\n当前每个用户每日可使用%d次\n\n命令列表:\n /help - 查看帮助\n /getlimit - 查看当日可用使用次数",
 		"convert_completed": "已完成转换！",
 		"converted_waiting_upload": "任务完成(成功%d/失败%d)，正在上传文件。。。",
 		"download_sticker_set": "下载整套表情包",

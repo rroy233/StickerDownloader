@@ -32,7 +32,8 @@ func StickerMessage(update tgbotapi.Update) {
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to download file:", err)
 	}
-	logger.Info.Println(userInfo+"temp file downloaded：", tempFilePath)
+
+	logger.Info.Printf("%sGet sticker %s.%s", userInfo, update.Message.Sticker.SetName, update.Message.Sticker.Emoji)
 
 	//delete temp file
 	defer utils.RemoveFile(tempFilePath)
