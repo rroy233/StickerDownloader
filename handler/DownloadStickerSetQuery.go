@@ -75,13 +75,19 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 		}
 	}()
 	go func() {
+		text := ""
+		newText := ""
 		for true {
 			select {
 			case <-cancelCtx.Done():
 				return
 			default:
 				//update realtime progress
-				utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf(languages.Get().BotMsg.DownloadingWithProgress, task.finished+task.failed, task.total))
+				newText = fmt.Sprintf(languages.Get().BotMsg.DownloadingWithProgress, task.finished+task.failed, task.total)
+				if text != newText {
+					utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, newText)
+					text = newText
+				}
 				time.Sleep(1 * time.Second)
 			}
 		}
