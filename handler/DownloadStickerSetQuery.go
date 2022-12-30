@@ -92,12 +92,12 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 	for {
 		if time.Now().Sub(timeStart).Seconds() > 60 { //60s timeout
 			success = false
+			logger.Error.Println(userInfo+"DownloadStickerSetQuery-Task Timeout:", task)
 			break
 		}
 		if task.finished+task.failed == task.total {
 			break
 		}
-		logger.Debug.Println(userInfo+"DownloadStickerSetQuery-pending-used", time.Now().Sub(timeStart).Seconds())
 		time.Sleep(1 * time.Second)
 	}
 	cancel()
@@ -187,7 +187,6 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 				atomic.AddInt32(&task.failed, 1)
 				continue
 			}
-			logger.Info.Printf("DownloadStickerSetQuery[%d/%d]-temp file downloaded：%s\n", i, sum, tempFilePath)
 
 			outFilePath := fmt.Sprintf("%s/%d.gif", task.folderName, i)
 			err = utils.ConvertToGif(tempFilePath, outFilePath)
