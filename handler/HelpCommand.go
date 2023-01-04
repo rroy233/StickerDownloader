@@ -9,6 +9,6 @@ import (
 )
 
 func HelpCommand(update tgbotapi.Update) {
-	utils.SendPlainText(&update, fmt.Sprintf(languages.Get().BotMsg.HelpCommand, config.Get().General.UserDailyLimit))
+	utils.SendPlainText(&update, fmt.Sprintf(languages.Get(&update).BotMsg.HelpCommand, config.Get().General.UserDailyLimit))
 	return
 }

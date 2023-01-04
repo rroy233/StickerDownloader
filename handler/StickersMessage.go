@@ -13,7 +13,7 @@ import (
 func StickerMessage(update tgbotapi.Update) {
 	userInfo := utils.GetLogPrefixMessage(&update)
 
-	oMsg := tgbotapi.NewMessage(update.Message.Chat.ID, languages.Get().BotMsg.Processing)
+	oMsg := tgbotapi.NewMessage(update.Message.Chat.ID, languages.Get(&update).BotMsg.Processing)
 	oMsg.ReplyToMessageID = update.Message.MessageID
 	msg, err := bot.Send(oMsg)
 	if err != nil {
@@ -40,7 +40,7 @@ func StickerMessage(update tgbotapi.Update) {
 
 	//check file type
 	if utils.GetFileExtName(tempFilePath) != "webp" && utils.GetFileExtName(tempFilePath) != "webm" {
-		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get().BotMsg.ErrStickerNotSupport)
+		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrStickerNotSupport)
 		return
 	}
 
@@ -48,19 +48,19 @@ func StickerMessage(update tgbotapi.Update) {
 	err = utils.ConvertToGif(tempFilePath, outPath)
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to convert:", err)
-		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get().BotMsg.ErrConvertFailed)
+		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrConvertFailed)
 		return
 	}
 
 	err = utils.SendFile(&update, outPath)
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to SendFile:", err)
-		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get().BotMsg.ErrSendFileFailed)
+		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrSendFileFailed)
 		return
 	}
 
-	_, err = bot.Request(tgbotapi.NewEditMessageTextAndMarkup(update.Message.Chat.ID, msg.MessageID, languages.Get().BotMsg.ConvertCompleted, tgbotapi.NewInlineKeyboardMarkup(
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(languages.Get().BotMsg.DownloadStickerSet, "DOWNLOAD_STICKERS_SET")),
+	_, err = bot.Request(tgbotapi.NewEditMessageTextAndMarkup(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ConvertCompleted, tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(languages.Get(&update).BotMsg.DownloadStickerSet, "DOWNLOAD_STICKERS_SET")),
 	)))
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to delete msg:", err)

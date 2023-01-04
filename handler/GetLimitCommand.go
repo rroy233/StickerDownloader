@@ -10,10 +10,10 @@ import (
 
 func GetLimitCommand(update tgbotapi.Update) {
 	num := db.GetLimit(update.Message.From.ID)
-	text := fmt.Sprintf(languages.Get().BotMsg.GetLimitCommand, num)
+	text := fmt.Sprintf(languages.Get(&update).BotMsg.GetLimitCommand, num)
 	utils.SendPlainText(&update,
 		text,
-		utils.EntityBold(fmt.Sprintf(languages.Get().BotMsg.GetLimitCommand, num), fmt.Sprintf("%d", num)),
+		utils.EntityBold(fmt.Sprintf(languages.Get(&update).BotMsg.GetLimitCommand, num), fmt.Sprintf("%d", num)),
 	)
 	return
 }

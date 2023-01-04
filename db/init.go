@@ -21,9 +21,9 @@ func Init() {
 	})
 	err := rdb.Ping(context.Background()).Err()
 	if err != nil {
-		logger.FATAL.Fatalln(languages.Get().System.DbRedisStartFailed, err)
+		logger.FATAL.Fatalln(languages.Get(nil).System.DbRedisStartFailed, err)
 		return
 	}
-	logger.Info.Println(languages.Get().System.DbRedisConnected)
+	logger.Info.Println(languages.Get(nil).System.DbRedisConnected)
 	return
 }

@@ -7,6 +7,6 @@ import (
 )
 
 func StartCommand(update tgbotapi.Update) {
-	utils.SendPlainText(&update, languages.Get().BotMsg.StartCommand)
+	utils.SendPlainText(&update, languages.Get(&update).BotMsg.StartCommand)
 	return
 }

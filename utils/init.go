@@ -25,7 +25,7 @@ func Init(api *tgbotapi.BotAPI) {
 		_ = os.Mkdir("./ffmpeg", 0755)
 	}
 	if IsExist("./ffmpeg/"+getFfmpeg()) == false {
-		logger.FATAL.Printf(languages.Get().System.FfmpegNotExist, getFfmpeg())
+		logger.FATAL.Printf(languages.Get(nil).System.FfmpegNotExist, getFfmpeg())
 	}
 	return
 }

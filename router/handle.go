@@ -26,13 +26,15 @@ func Handle(update tgbotapi.Update) {
 			handler.ReloadConfigCommand(update)
 		case "getlimit":
 			handler.GetLimitCommand(update)
+		case "invite":
+			handler.InviteCommand(update)
 		}
 	}
 
 	//Sticker message
 	if update.Message != nil && update.Message.Sticker != nil {
 		if db.CheckLimit(&update) == true {
-			utils.SendPlainText(&update, fmt.Sprintf(languages.Get().BotMsg.ErrReachLimit, config.Get().General.UserDailyLimit))
+			utils.SendPlainText(&update, fmt.Sprintf(languages.Get(&update).BotMsg.ErrReachLimit, config.Get().General.UserDailyLimit))
 			return
 		}
 		handler.StickerMessage(update)
@@ -43,7 +45,7 @@ func Handle(update tgbotapi.Update) {
 		switch update.CallbackQuery.Data {
 		case "DOWNLOAD_STICKERS_SET":
 			if db.CheckLimit(&update) == true {
-				utils.CallBackWithAlert(update.CallbackQuery.ID, fmt.Sprintf(languages.Get().BotMsg.ErrReachLimit, config.Get().General.UserDailyLimit))
+				utils.CallBackWithAlert(update.CallbackQuery.ID, fmt.Sprintf(languages.Get(&update).BotMsg.ErrReachLimit, config.Get().General.UserDailyLimit))
 				return
 			}
 			handler.DownloadStickerSetQuery(update)

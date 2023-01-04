@@ -38,7 +38,7 @@ func main() {
 		})
 
 	//language
-	languages.Init(config.Get().General.Language)
+	languages.Init()
 
 	var err error
 	bot, err = tgbotapi.NewBotAPI(config.Get().General.BotToken)
@@ -61,14 +61,14 @@ func main() {
 		go worker(stopCtx, updates, cancelCh)
 	}
 
-	logger.Info.Println(languages.Get().System.Running)
+	logger.Info.Println(languages.Get(nil).System.Running)
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt, os.Kill)
 	<-sigCh
 
 	Stop()
-	logger.Info.Println(languages.Get().System.StopRunning)
+	logger.Info.Println(languages.Get(nil).System.StopRunning)
 
 }
 

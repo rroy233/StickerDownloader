@@ -3,8 +3,11 @@ package languages
 import (
 	"encoding/json"
 	"fmt"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/logger"
+	"github.com/rroy233/tg-stickers-dl/config"
 	"os"
+	"strings"
 )
 
 type LanguageStruct struct {
@@ -40,27 +43,59 @@ type LanguageStruct struct {
 	} `json:"bot_msg"`
 }
 
-var lang *LanguageStruct
+var lang map[string]*LanguageStruct
 
-func Init(languageCode string) {
-	_, err := os.Stat(fmt.Sprintf("./languages/%s.json", languageCode))
-	if err != nil && os.IsNotExist(err) {
-		logger.Error.Fatalln(fmt.Sprintf("failed to init language pack! %s.json not exist!\n", languageCode))
-	}
-
-	fileData, err := os.ReadFile(fmt.Sprintf("./languages/%s.json", languageCode))
+func Init() {
+	dir, err := os.ReadDir("./languages")
 	if err != nil {
-		logger.Error.Fatalln(fmt.Sprintf("failed to load language pack! \n"))
+		logger.Error.Fatalln(fmt.Sprintf("failed to read language folder! \n"))
 	}
 
-	lang = new(LanguageStruct)
-	err = json.Unmarshal(fileData, lang)
-	if err != nil {
-		logger.Error.Fatalln(fmt.Sprintf("failed to parse language pack! \n"))
+	lang = make(map[string]*LanguageStruct)
+	for _, entry := range dir {
+		if strings.HasSuffix(entry.Name(), ".json") != true {
+			continue
+		}
+		namePart := strings.Split(entry.Name(), ".")
+		fileData, err := os.ReadFile(fmt.Sprintf("./languages/%s", entry.Name()))
+		if err != nil {
+			logger.Error.Fatalln(fmt.Sprintf("failed to load language pack! \n"))
+		}
+
+		langItem := new(LanguageStruct)
+		err = json.Unmarshal(fileData, langItem)
+		if err != nil {
+			logger.Error.Fatalln(fmt.Sprintf("failed to parse language pack! \n"))
+		}
+
+		logger.Info.Printf("Loaded language <%s>\n", namePart[0])
+		lang[namePart[0]] = langItem
 	}
+	if len(lang) == 0 {
+		logger.Error.Fatalln(fmt.Sprintf("NO language config has been loaded! \n"))
+	}
+	//check default language
+	if lang[config.Get().General.Language] == nil {
+		logger.Error.Fatalln(fmt.Sprintf("default language config NOT exist! \n"))
+	}
+
 	return
 }
 
-func Get() *LanguageStruct {
-	return lang
+// Get return language config depending on user's language code
+//
+// if pass a nil, then it will return default language config
+func Get(update *tgbotapi.Update) *LanguageStruct {
+	if update == nil {
+		return lang[config.Get().General.Language]
+	}
+
+	if update.Message != nil || lang[update.Message.From.LanguageCode] != nil {
+		return lang[update.Message.From.LanguageCode]
+	} else if update.CallbackQuery != nil || lang[update.CallbackQuery.Message.From.LanguageCode] != nil {
+		return lang[update.CallbackQuery.Message.From.LanguageCode]
+	}
+
+	//no matched language, return default language
+	return lang[config.Get().General.Language]
 }

@@ -1,6 +1,6 @@
 general:
   bot_token: "xxx"
-  language: "zh-chs"
+  language: "zh-hans"
   worker_num: 2
   download_worker_num: 3
   admin_uid: 0

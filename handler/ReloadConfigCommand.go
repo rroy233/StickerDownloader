@@ -9,12 +9,12 @@ import (
 
 func ReloadConfigCommand(update tgbotapi.Update) {
 	if update.Message.Chat.ID != config.Get().General.AdminUID {
-		utils.SendPlainText(&update, languages.Get().BotMsg.ErrNoPermission)
+		utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrNoPermission)
 		return
 	}
 
 	config.Init()
-	languages.Init(config.Get().General.Language)
-	utils.SendPlainText(&update, languages.Get().BotMsg.ReloadConfigSuccess)
+	languages.Init()
+	utils.SendPlainText(&update, languages.Get(&update).BotMsg.ReloadConfigSuccess)
 	return
 }
