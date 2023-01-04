@@ -59,24 +59,24 @@ func Init() {
 		namePart := strings.Split(entry.Name(), ".")
 		fileData, err := os.ReadFile(fmt.Sprintf("./languages/%s", entry.Name()))
 		if err != nil {
-			logger.Error.Fatalln(fmt.Sprintf("failed to load language pack! \n"))
+			logger.Error.Fatalln(fmt.Sprintf("failed to load language pack! "))
 		}
 
 		langItem := new(LanguageStruct)
 		err = json.Unmarshal(fileData, langItem)
 		if err != nil {
-			logger.Error.Fatalln(fmt.Sprintf("failed to parse language pack! \n"))
+			logger.Error.Fatalln(fmt.Sprintf("failed to parse language pack! "))
 		}
 
-		logger.Info.Printf("Loaded language <%s>\n", namePart[0])
+		logger.Info.Printf("Loaded language <%s>", namePart[0])
 		lang[namePart[0]] = langItem
 	}
 	if len(lang) == 0 {
-		logger.Error.Fatalln(fmt.Sprintf("NO language config has been loaded! \n"))
+		logger.Error.Fatalln(fmt.Sprintf("NO language config has been loaded! "))
 	}
 	//check default language
 	if lang[config.Get().General.Language] == nil {
-		logger.Error.Fatalln(fmt.Sprintf("default language config NOT exist! \n"))
+		logger.Error.Fatalln(fmt.Sprintf("default language config NOT exist! "))
 	}
 
 	return

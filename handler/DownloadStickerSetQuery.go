@@ -45,18 +45,18 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 	}
 
 	//create temp folder
-	folderName := fmt.Sprintf("./storage/tmp/stickers_%s_%d", stickerSet.Name, time.Now().UnixMicro())
-	err = os.Mkdir(folderName, 0777)
-	if err != nil || utils.IsExist(folderName) == false {
+	folderPath := fmt.Sprintf("./storage/tmp/stickers_%d", time.Now().UnixMicro())
+	err = os.Mkdir(folderPath, 0777)
+	if err != nil || utils.IsExist(folderPath) == false {
 		logger.Error.Println(userInfo+"DownloadStickerSetQuery-create folder failed:", err)
 		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrFailed+"-1001")
 		return
 	}
 	//delete temp folder
 	defer func() {
-		err = os.RemoveAll(folderName)
+		err = os.RemoveAll(folderPath)
 		if err != nil {
-			logger.Error.Println(userInfo+"DownloadStickerSetQuery-delete temp folder failed:", folderName, err)
+			logger.Error.Println(userInfo+"DownloadStickerSetQuery-delete temp folder failed:", folderPath, err)
 		}
 	}()
 
@@ -67,7 +67,7 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 		go downloadWorker(cancelCtx, queue, task)
 	}
 	task.total = int32(len(stickerSet.Stickers))
-	task.folderName = folderName
+	task.folderName = folderPath
 	timeStart := time.Now()
 	go func() {
 		for _, sticker := range stickerSet.Stickers {
@@ -107,34 +107,50 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 		time.Sleep(1 * time.Second)
 	}
 	cancel()
-	if success {
-		zipFilePath := fmt.Sprintf("./storage/tmp/%s_%d.zip", stickerSet.Name, time.Now().UnixMicro())
-		err = utils.Compress(folderName, zipFilePath)
-		if err != nil {
-			logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to compress files:", err)
-			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrFailed+"-1002")
-			return
-		}
-		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf(languages.Get(&update).BotMsg.ConvertedWaitingUpload, task.finished, task.failed))
+	if success == false {
+		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf(languages.Get(&update).BotMsg.ErrTimeout))
+		return
+	}
 
-		//delete
-		defer utils.RemoveFile(zipFilePath)
+	//start upload
+	zipFilePath := fmt.Sprintf("./storage/tmp/%d.zip", time.Now().UnixMicro())
+	err = utils.Compress(folderPath, zipFilePath)
+	if err != nil {
+		logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to compress files:", err)
+		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrFailed+"-1002")
+		return
+	}
+	utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf(languages.Get(&update).BotMsg.ConvertedWaitingUpload, task.finished, task.failed))
 
-		fileStat, err := os.Stat(zipFilePath)
-		if err != nil {
-			logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to read zip file info:", err)
-			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrFailed+"-1003")
-			return
+	//delete
+	defer utils.RemoveFile(zipFilePath)
+
+	fileStat, err := os.Stat(zipFilePath)
+	if err != nil {
+		logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to read zip file info:", err)
+		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrFailed+"-1003")
+		return
+	}
+
+	if fileStat.Size() > 50*MB {
+		logger.Info.Println(userInfo + "DownloadStickerSetQuery-uploading(third party)")
+		uploadTask := utils.NewUploadFile(zipFilePath, folderPath)
+
+		//check third-Party service available
+		thirdPartyAvailable := false
+		if uploadTask.CheckAvailable() == true {
+			thirdPartyAvailable = true
+		} else {
+			logger.Info.Println(userInfo + "DownloadStickerSetQuery- third party NOT available！！！")
 		}
-		if fileStat.Size() > 50*MB {
-			logger.Info.Println(userInfo + "DownloadStickerSetQuery-uploading(third party)")
-			uploadTask := utils.NewUploadFile(zipFilePath)
+
+		if thirdPartyAvailable == true {
 			err = uploadTask.Upload2FileHost()
 			if err != nil {
 				logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to upload:", err)
-				utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrUploadFailed)
-				return
+				thirdPartyAvailable = false
 			}
+
 			text := fmt.Sprintf(languages.Get(&update).BotMsg.UploadedThirdParty, stickerSet.Name, uploadTask.InfoRes.Data.File.Metadata.Size.Readable, uploadTask.InfoRes.Data.File.Url.Short)
 			utils.EditMsgText(
 				update.CallbackQuery.Message.Chat.ID, msg.MessageID,
@@ -144,13 +160,14 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 			)
 			logger.Info.Println(userInfo + "DownloadStickerSetQuery-upload (third party) successfully！！！")
 		} else {
-			logger.Info.Println(userInfo + "DownloadStickerSetQuery-uploading(Telegram)")
-			err = utils.SendFile(&update, zipFilePath)
+			// upload via Telegram separately
+			err = uploadTask.UploadFragment(&update)
 			if err != nil {
 				logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to upload:", err)
 				utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrUploadFailed)
 				return
 			}
+
 			text := fmt.Sprintf(languages.Get(&update).BotMsg.UploadedTelegram, stickerSet.Name, fileStat.Size()>>20)
 			utils.EditMsgText(
 				update.CallbackQuery.Message.Chat.ID,
@@ -159,11 +176,27 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 				utils.EntityBold(text, stickerSet.Name),
 				utils.EntityBold(text, fmt.Sprintf("%d", fileStat.Size()>>20)),
 			)
-			logger.Info.Println(userInfo + "DownloadStickerSetQuery-upload(Telegram) successfully！！！")
-		}
 
+			logger.Info.Println(userInfo + "DownloadStickerSetQuery-upload(Telegram-UploadFragment) successfully！！！")
+		}
+		uploadTask.Clean()
 	} else {
-		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf(languages.Get(&update).BotMsg.ErrTimeout))
+		logger.Info.Println(userInfo + "DownloadStickerSetQuery-uploading(Telegram)")
+		err = utils.SendFile(&update, zipFilePath)
+		if err != nil {
+			logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to upload:", err)
+			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrUploadFailed)
+			return
+		}
+		text := fmt.Sprintf(languages.Get(&update).BotMsg.UploadedTelegram, stickerSet.Name, fileStat.Size()>>20)
+		utils.EditMsgText(
+			update.CallbackQuery.Message.Chat.ID,
+			msg.MessageID,
+			text,
+			utils.EntityBold(text, stickerSet.Name),
+			utils.EntityBold(text, fmt.Sprintf("%d", fileStat.Size()>>20)),
+		)
+		logger.Info.Println(userInfo + "DownloadStickerSetQuery-upload(Telegram) successfully！！！")
 	}
 
 	return

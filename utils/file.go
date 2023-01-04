@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/logger"
 	"io"
 	"mime/multipart"
@@ -15,10 +16,14 @@ import (
 	"time"
 )
 
+const MB = 1 << 20
+
 type UploadFile struct {
-	FilePath  string
-	UploadRes *fileHostUploadResp
-	InfoRes   *fileHostInfoResp
+	ZipPath    string
+	FolderPath string
+	UploadRes  *fileHostUploadResp
+	InfoRes    *fileHostInfoResp
+	CleanList  []string
 }
 
 type fileHostUploadResp struct {
@@ -80,20 +85,39 @@ func RemoveFile(path string) {
 	return
 }
 
-func NewUploadFile(filePath string) *UploadFile {
+func NewUploadFile(zipPath, folderPath string) *UploadFile {
 	return &UploadFile{
-		FilePath: filePath,
+		ZipPath:    zipPath,
+		FolderPath: folderPath,
 	}
+}
+
+func (f *UploadFile) CheckAvailable() bool {
+	req, err := http.NewRequest(http.MethodOptions, "https://api.anonfiles.com/upload", nil)
+	if err != nil {
+		logger.Error.Println("CheckAvailable - NewRequest error", err)
+		return false
+	}
+	client := &http.Client{Timeout: 2 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		logger.Error.Println("CheckAvailable - client.Do error", err)
+		return false
+	}
+	if resp.StatusCode != 200 {
+		return false
+	}
+	return true
 }
 
 func (f *UploadFile) Upload2FileHost() error {
 
-	file, _ := os.Open(f.FilePath)
+	file, _ := os.Open(f.ZipPath)
 	defer file.Close()
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile("file", f.FilePath)
+	part, err := writer.CreateFormFile("file", f.ZipPath)
 	if err != nil {
 		logger.Error.Println("Upload2FileHost-CreateFormFile failed", err)
 		return err
@@ -121,6 +145,12 @@ func (f *UploadFile) Upload2FileHost() error {
 		return err
 	}
 
+	if resp.StatusCode != 200 {
+		logger.Error.Println("Upload2FileHost-api return:", string(data))
+		logger.Error.Println("Upload2FileHost-http request Status:", resp.StatusCode)
+		return errors.New("http request Status " + resp.Status)
+	}
+
 	logger.Info.Println("Upload2FileHost-api return:", string(data))
 
 	uploadApiRes := new(fileHostUploadResp)
@@ -143,6 +173,80 @@ func (f *UploadFile) Upload2FileHost() error {
 	}
 
 	return nil
+}
+
+func (f *UploadFile) UploadFragment(update *tgbotapi.Update) error {
+	dir, err := os.ReadDir(f.FolderPath)
+	if err != nil {
+		return err
+	}
+
+	//创建0号目录
+	folderIndex := 0
+	err = os.Mkdir(fmt.Sprintf("%s_%d", f.FolderPath, folderIndex), 0755)
+	if err != nil {
+		logger.Error.Println("UploadFragment os.Mkdir error", err)
+		return err
+	}
+	f.CleanList = append(f.CleanList, fmt.Sprintf("%s_%d", f.FolderPath, folderIndex))
+
+	//获取所有文件的大小
+	sizes := make([]int64, len(dir))
+	for i, entry := range dir {
+		info, err := entry.Info()
+		if err != nil {
+			logger.Error.Println("UploadFragment entry.Info() error", err)
+			return err
+		}
+		sizes[i] = info.Size()
+	}
+
+	//操作文件
+	sizeSum := int64(0)
+	for i, entry := range dir {
+		if sizeSum+sizes[i] > 49*MB {
+			sizeSum = 0
+			folderIndex++
+			err = os.Mkdir(fmt.Sprintf("%s_%d", f.FolderPath, folderIndex), 0755)
+			if err != nil {
+				logger.Error.Println("UploadFragment os.Mkdir error", err)
+				return err
+			}
+			f.CleanList = append(f.CleanList, fmt.Sprintf("%s_%d", f.FolderPath, folderIndex))
+		}
+		err = copyFile(fmt.Sprintf("%s/%s", f.FolderPath, entry.Name()), fmt.Sprintf("%s_%d/%s", f.FolderPath, folderIndex, entry.Name()))
+		if err != nil {
+			logger.Error.Println("UploadFragment copyFile error", err)
+			continue
+		}
+		sizeSum += sizes[i]
+	}
+
+	//压缩并上传
+	for i := 0; i <= folderIndex; i++ {
+		err = Compress(fmt.Sprintf("%s_%d", f.FolderPath, i), fmt.Sprintf("%s_part-%d.zip", f.FolderPath, i))
+		if err != nil {
+			logger.Error.Println("UploadFragment Compress error", err)
+		}
+		f.CleanList = append(f.CleanList, fmt.Sprintf("%s_part-%d.zip", f.FolderPath, i))
+
+		err = SendFile(update, fmt.Sprintf("%s_part-%d.zip", f.FolderPath, i))
+		if err != nil {
+			logger.Error.Println("UploadFragment SendFile error", err)
+		}
+	}
+
+	return err
+}
+
+func (f *UploadFile) Clean() {
+	for _, s := range f.CleanList {
+		err := os.RemoveAll(s)
+		if err != nil {
+			logger.Error.Println("UploadFile.Clean error", err)
+		}
+	}
+	return
 }
 
 func (f *UploadFile) getInfo() error {

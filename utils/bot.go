@@ -169,6 +169,11 @@ func EditMsgText(chatID int64, msgID int, msg string, entity ...tgbotapi.Message
 	return
 }
 
+func DeleteMsg(chatID int64, MsgID int) {
+	addToSendQueue(tgbotapi.NewDeleteMessage(chatID, MsgID))
+	return
+}
+
 func CallBack(callbackQueryID string, text string) {
 	callback := tgbotapi.NewCallback(callbackQueryID, text)
 	//不能用bot.Send(callback)方法，有bug
