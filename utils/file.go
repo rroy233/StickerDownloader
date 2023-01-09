@@ -93,12 +93,12 @@ func NewUploadFile(zipPath, folderPath string) *UploadFile {
 }
 
 func (f *UploadFile) CheckAvailable() bool {
-	req, err := http.NewRequest(http.MethodOptions, "https://api.anonfiles.com/upload", nil)
+	req, err := http.NewRequest(http.MethodHead, "https://api.anonfiles.com", nil)
 	if err != nil {
 		logger.Error.Println("CheckAvailable - NewRequest error", err)
 		return false
 	}
-	client := &http.Client{Timeout: 2 * time.Second}
+	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
 		logger.Error.Println("CheckAvailable - client.Do error", err)

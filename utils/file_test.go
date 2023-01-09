@@ -14,7 +14,7 @@ func TestUpload(t *testing.T) {
 		t.Error("文件不存在")
 		return
 	}
-	file := NewUploadFile(filePath)
+	file := NewUploadFile(filePath, "")
 	err := file.Upload2FileHost()
 	if err != nil {
 		t.Error(err)
