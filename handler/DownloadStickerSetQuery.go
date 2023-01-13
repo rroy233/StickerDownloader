@@ -133,24 +133,25 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 	}
 
 	if fileStat.Size() > 50*MB {
-		logger.Info.Println(userInfo + "DownloadStickerSetQuery-uploading(third party)")
 		uploadTask := utils.NewUploadFile(zipFilePath, folderPath)
 
 		//check third-Party service available
 		thirdPartyAvailable := false
-		if uploadTask.CheckAvailable() == true {
-			thirdPartyAvailable = true
-		} else {
-			logger.Info.Println(userInfo + "DownloadStickerSetQuery- third party NOT available！！！")
-		}
-
-		if thirdPartyAvailable == true {
+		if config.Get().General.UseExtFileHost {
+			if uploadTask.CheckAvailable() == true {
+				thirdPartyAvailable = true
+			} else {
+				logger.Info.Println(userInfo + "DownloadStickerSetQuery- third party NOT available！！！")
+			}
+			logger.Info.Println(userInfo + "DownloadStickerSetQuery-uploading(third party)")
 			err = uploadTask.Upload2FileHost()
 			if err != nil {
 				logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to upload:", err)
 				thirdPartyAvailable = false
 			}
+		}
 
+		if config.Get().General.UseExtFileHost && thirdPartyAvailable == true {
 			text := fmt.Sprintf(languages.Get(&update).BotMsg.UploadedThirdParty, stickerSet.Name, uploadTask.InfoRes.Data.File.Metadata.Size.Readable, uploadTask.InfoRes.Data.File.Url.Short)
 			utils.EditMsgText(
 				update.CallbackQuery.Message.Chat.ID, msg.MessageID,
@@ -179,6 +180,7 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 
 			logger.Info.Println(userInfo + "DownloadStickerSetQuery-upload(Telegram-UploadFragment) successfully！！！")
 		}
+
 		uploadTask.Clean()
 	} else {
 		logger.Info.Println(userInfo + "DownloadStickerSetQuery-uploading(Telegram)")

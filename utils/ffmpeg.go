@@ -28,5 +28,9 @@ func (w logWriter) Write(p []byte) (n int, err error) {
 }
 
 func getFfmpeg() string {
-	return fmt.Sprintf("ffmpeg-%s-%s", runtime.GOOS, runtime.GOARCH)
+	exeSuffix := ""
+	if runtime.GOOS == "windows" {
+		exeSuffix = ".exe"
+	}
+	return fmt.Sprintf("ffmpeg-%s-%s"+exeSuffix, runtime.GOOS, runtime.GOARCH)
 }

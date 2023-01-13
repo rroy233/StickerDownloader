@@ -16,6 +16,7 @@ type Config struct {
 		DownloadWorkerNum int    `yaml:"download_worker_num"`
 		AdminUID          int64  `yaml:"admin_uid"`
 		UserDailyLimit    int    `yaml:"user_daily_limit"`
+		UseExtFileHost    bool   `yaml:"use_ext_file_host"`
 	} `yaml:"general"`
 	Logger struct {
 		Report         bool   `yaml:"report"`
