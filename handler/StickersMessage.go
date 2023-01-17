@@ -21,6 +21,13 @@ func StickerMessage(update tgbotapi.Update) {
 		return
 	}
 
+	//Enqueue
+	qItem, quit := enqueue(&update, &msg)
+	if quit == true {
+		return
+	}
+	//Enqueue
+
 	remoteFile, err := bot.GetFile(tgbotapi.FileConfig{
 		FileID: update.Message.Sticker.FileID,
 	})
@@ -52,6 +59,10 @@ func StickerMessage(update tgbotapi.Update) {
 		return
 	}
 
+	//Dequeue
+	dequeue(qItem)
+	//Dequeue
+
 	err = utils.SendFile(&update, outPath)
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to SendFile:", err)
@@ -60,7 +71,7 @@ func StickerMessage(update tgbotapi.Update) {
 	}
 
 	_, err = bot.Request(tgbotapi.NewEditMessageTextAndMarkup(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ConvertCompleted, tgbotapi.NewInlineKeyboardMarkup(
-		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(languages.Get(&update).BotMsg.DownloadStickerSet, "DOWNLOAD_STICKERS_SET")),
+		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(languages.Get(&update).BotMsg.DownloadStickerSet, DownloadStickerSetCallbackQuery)),
 	)))
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to delete msg:", err)

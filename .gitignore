@@ -3,3 +3,5 @@
 /storage/*
 config.yaml
 /.idea
+tg-stickers-dl
+*_test.go

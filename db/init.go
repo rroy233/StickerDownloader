@@ -25,5 +25,9 @@ func Init() {
 		return
 	}
 	logger.Info.Println(languages.Get(nil).System.DbRedisConnected)
+
+	//queue
+	initQueue(config.Get().General.ProcessWaitQueueMaxSize)
+
 	return
 }

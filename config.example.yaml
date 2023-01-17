@@ -6,6 +6,7 @@ general:
   admin_uid: 0
   user_daily_limit: 10
   use_ext_file_host: false
+  process_wait_queue_max_size: 50
 
 logger:
   report: false

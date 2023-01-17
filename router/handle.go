@@ -37,7 +37,7 @@ func Handle(update tgbotapi.Update) {
 	if update.Message != nil && strings.HasPrefix(update.Message.Text, "https://t.me/addstickers/") == true {
 		handler.AddStickerUrlMessage(update)
 	}
-	
+
 	//Sticker message
 	if update.Message != nil && update.Message.Sticker != nil {
 		if db.CheckLimit(&update) == true {
@@ -49,13 +49,16 @@ func Handle(update tgbotapi.Update) {
 
 	//inline query
 	if update.CallbackQuery != nil {
-		switch update.CallbackQuery.Data {
-		case "DOWNLOAD_STICKERS_SET":
+		data := update.CallbackQuery.Data
+		switch {
+		case data == handler.DownloadStickerSetCallbackQuery:
 			if db.CheckLimit(&update) == true {
 				utils.CallBackWithAlert(update.CallbackQuery.ID, fmt.Sprintf(languages.Get(&update).BotMsg.ErrReachLimit, config.Get().General.UserDailyLimit))
 				return
 			}
 			handler.DownloadStickerSetQuery(update)
+		case strings.HasPrefix(data, handler.QuitQueueCallbackQueryPrefix) == true:
+			handler.QuitQueueQuery(update)
 		}
 	}
 	return

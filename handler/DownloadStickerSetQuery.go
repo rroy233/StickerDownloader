@@ -33,16 +33,26 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 		utils.CallBackWithAlert(update.CallbackQuery.ID, languages.Get(&update).BotMsg.ErrFailedToDownload)
 	}
 
+	//remove old msg to prevent frequent request
+	utils.DeleteMsg(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID)
+
 	utils.CallBack(update.CallbackQuery.ID, "ok")
 
 	oMsg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, languages.Get(&update).BotMsg.Processing)
-	oMsg.ReplyToMessageID = update.CallbackQuery.Message.MessageID
+	oMsg.ReplyToMessageID = update.CallbackQuery.Message.ReplyToMessage.MessageID
 	msg, err := bot.Send(oMsg)
 	if err != nil {
 		logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to send <processing> msg:", err)
 		utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrSysFailureOccurred)
 		return
 	}
+
+	//Enqueue
+	qItem, quit := enqueue(&update, &msg)
+	if quit == true {
+		return
+	}
+	//Enqueue
 
 	//create temp folder
 	folderPath := fmt.Sprintf("./storage/tmp/stickers_%d", time.Now().UnixMicro())
@@ -111,6 +121,10 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf(languages.Get(&update).BotMsg.ErrTimeout))
 		return
 	}
+
+	//Dequeue
+	dequeue(qItem)
+	//Dequeue
 
 	//start upload
 	zipFilePath := fmt.Sprintf("./storage/tmp/%d.zip", time.Now().UnixMicro())

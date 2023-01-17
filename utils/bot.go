@@ -169,9 +169,25 @@ func EditMsgText(chatID int64, msgID int, msg string, entity ...tgbotapi.Message
 	return
 }
 
+func EditMsgTextAndMarkup(chatID int64, msgID int, msg string, markup tgbotapi.InlineKeyboardMarkup) {
+	newMsg := tgbotapi.NewEditMessageTextAndMarkup(chatID, msgID, msg, markup)
+	addToSendQueue(newMsg)
+	return
+}
+
 func DeleteMsg(chatID int64, MsgID int) {
 	addToSendQueue(tgbotapi.NewDeleteMessage(chatID, MsgID))
 	return
+}
+
+func GetUID(update *tgbotapi.Update) int64 {
+	if update.Message != nil {
+		return update.Message.Chat.ID
+	}
+	if update.CallbackQuery != nil {
+		return update.CallbackQuery.Message.Chat.ID
+	}
+	return -1
 }
 
 func CallBack(callbackQueryID string, text string) {

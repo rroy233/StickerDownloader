@@ -31,6 +31,10 @@ type LanguageStruct struct {
 		ConvertedWaitingUpload  string `json:"converted_waiting_upload"`
 		DownloadStickerSet      string `json:"download_sticker_set"`
 		ReloadConfigSuccess     string `json:"reload_config_success"`
+		QueueAbortBtn           string `json:"queue_abort_btn"`
+		QueueAborted            string `json:"queue_aborted"`
+		QueueProcess            string `json:"queue_process"`
+		ErrSysBusy              string `json:"err_sys_busy"`
 		ErrNoPermission         string `json:"err_no_permission"`
 		ErrReachLimit           string `json:"err_reach_limit"`
 		ErrFailedToDownload     string `json:"err_failed_to_download"`
