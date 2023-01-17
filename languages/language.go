@@ -20,6 +20,7 @@ type LanguageStruct struct {
 	} `json:"system"`
 	BotMsg struct {
 		Processing              string `json:"processing"`
+		StickersSetInfoFromUrl  string `json:"stickers_set_info_from_url"`
 		DownloadingWithProgress string `json:"downloading_with_progress"`
 		UploadedThirdParty      string `json:"uploaded_third_party"`
 		UploadedTelegram        string `json:"uploaded_telegram"`

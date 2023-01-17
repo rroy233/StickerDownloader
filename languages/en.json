@@ -8,6 +8,7 @@
   },
   "bot_msg": {
     "processing": "Processing...",
+    "stickers_set_info_from_url": "Sticker Name:%s\nCount：%d\n\nTo download the full set of stickers, click the button below。\nIf you want to download some of them, please send them directly.",
     "downloading_with_progress": "Downloading[%d/%d]...",
     "uploaded_third_party": "Success!!\nSticker Name:%s\nSize:%s\nDownload:%s\n",
     "uploaded_telegram": "Success!!\nSticker Name:%s\nSize:%dMB\n",

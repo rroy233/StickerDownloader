@@ -8,6 +8,7 @@
 	},
 	"bot_msg": {
 		"processing": "正在处理...",
+		"stickers_set_info_from_url": "表情包名：%s\n数量：%d\n\n若需要下载整套表情包，请点击下方按钮。\n若下载部分，请直接发送表情。",
 		"downloading_with_progress": "正在下载[%d/%d]...",
 		"uploaded_third_party": "上传成功！！\n表情包名:%s\n文件大小:%s\n下载地址:%s\n",
 		"uploaded_telegram": "上传成功！！\n表情包名:%s\n文件大小:%dMB\n",
@@ -18,6 +19,10 @@
 		"converted_waiting_upload": "任务完成(成功%d/失败%d)，正在上传文件。。。",
 		"download_sticker_set": "下载整套表情包",
 		"reload_config_success": "已重新加载配置文件",
+		"queue_abort_btn": "停止排队",
+		"queue_aborted": "已放弃排队",
+		"queue_process": "正在为您排队等候，前面有%d项任务待处理。。。",
+		"err_sys_busy": "系统繁忙，请稍后再试！",
 		"err_no_permission": "您无权限使用",
 		"err_reach_limit": "您目前每24小时只允许使用%d次，您的使用已达到限制。",
 		"err_failed_to_download": "获取失败",

@@ -9,6 +9,7 @@ import (
 	"github.com/rroy233/tg-stickers-dl/handler"
 	"github.com/rroy233/tg-stickers-dl/languages"
 	"github.com/rroy233/tg-stickers-dl/utils"
+	"strings"
 )
 
 func Handle(update tgbotapi.Update) {
@@ -31,6 +32,12 @@ func Handle(update tgbotapi.Update) {
 		}
 	}
 
+	//add stickers url message
+	// e.g. https://t.me/addstickers/xxx
+	if update.Message != nil && strings.HasPrefix(update.Message.Text, "https://t.me/addstickers/") == true {
+		handler.AddStickerUrlMessage(update)
+	}
+	
 	//Sticker message
 	if update.Message != nil && update.Message.Sticker != nil {
 		if db.CheckLimit(&update) == true {
