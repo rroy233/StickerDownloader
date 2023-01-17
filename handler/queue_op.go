@@ -87,7 +87,7 @@ func enqueue(update *tgbotapi.Update, queueEditMsg *tgbotapi.Message) (*db.QItem
 func dequeue(qItem *db.QItem) {
 	qItem.Abort()
 	if err := qItem.DeQueue(); err != nil {
-		logger.Error.Println("qItem.DeQueue(),error", err)
+		logger.Info.Println("qItem.DeQueue(),error", err)
 	}
 	return
 }
