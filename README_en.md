@@ -17,13 +17,14 @@
    </a>
 </p>
 
-> A Telegram Stickes Download Bot.
+> A Telegram Stickers Download Bot.
 
 [中文](README.md) | EN
 
 ### Feature
 
-* Send sticker to Bot, so it will help you convert into gif file.
+* Send sticker or sticker link to Bot, so it will help you convert into GIF file.
+* Forward GIF to Bot, and Bot will send it back to you as a file for saving.
 * Download single sticker.
 * Download whole sticker set.
 
@@ -53,10 +54,9 @@
        # Go version：Go 1.19+
        go build
        ```
-    
-2. Download from release
-   
-   download from [releases](https://github.com/rroy233/tg-stickers-dl/releases), rename executable to `tg-stickers-dl`, and then put it into project root folder.
+    2. Download from release
+       download from [releases](https://github.com/rroy233/tg-stickers-dl/releases), rename executable to `tg-stickers-dl`, and then put it into project root folder.
+
 
 #### Create Bot
 
