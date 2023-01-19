@@ -22,6 +22,7 @@ import (
 // }
 func enqueue(update *tgbotapi.Update, queueEditMsg *tgbotapi.Message) (*db.QItem, bool) {
 	oldMsgText := queueEditMsg.Text
+	needRecover := false
 	qItem, err := db.EnQueue(utils.GetUID(update))
 	if err != nil {
 		if err == db.ErrorQueueFull {
@@ -63,6 +64,7 @@ func enqueue(update *tgbotapi.Update, queueEditMsg *tgbotapi.Message) (*db.QItem
 				logger.Error.Println(err)
 			}
 			progressMsgInit = true
+			needRecover = true
 		}
 		if waitingNum != qItem.QueryFront() {
 			waitingNum = qItem.QueryFront()
@@ -73,12 +75,15 @@ func enqueue(update *tgbotapi.Update, queueEditMsg *tgbotapi.Message) (*db.QItem
 					),
 				),
 			)
+			needRecover = true
 		}
 		time.Sleep(3 * time.Second)
 	}
 
 	//recover old msg text
-	utils.EditMsgText(queueEditMsg.Chat.ID, queueEditMsg.MessageID, oldMsgText)
+	if needRecover == true {
+		utils.EditMsgText(queueEditMsg.Chat.ID, queueEditMsg.MessageID, oldMsgText)
+	}
 
 	return qItem, false
 }
