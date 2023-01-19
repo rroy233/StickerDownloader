@@ -47,6 +47,15 @@ func Handle(update tgbotapi.Update) {
 		handler.StickerMessage(update)
 	}
 
+	//Animation message
+	if update.Message != nil && update.Message.Animation != nil {
+		if db.CheckLimit(&update) == true {
+			utils.SendPlainText(&update, fmt.Sprintf(languages.Get(&update).BotMsg.ErrReachLimit, config.Get().General.UserDailyLimit))
+			return
+		}
+		handler.AnimationMessage(update)
+	}
+
 	//inline query
 	if update.CallbackQuery != nil {
 		data := update.CallbackQuery.Data
