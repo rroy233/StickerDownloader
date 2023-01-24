@@ -14,6 +14,7 @@ import (
 )
 
 const MB = 1 << 20
+const Hour = int64(3600)
 
 type downloadTask struct {
 	finished   int32
@@ -34,7 +35,11 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 	}
 
 	//remove old msg to prevent frequent request
-	utils.DeleteMsg(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID)
+	if time.Now().Unix()-int64(update.CallbackQuery.Message.Date) < 48*Hour {
+		utils.DeleteMsg(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID)
+	} else {
+		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID, update.CallbackQuery.Message.Text)
+	}
 
 	utils.CallBack(update.CallbackQuery.ID, "ok")
 
