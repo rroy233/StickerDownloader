@@ -37,7 +37,7 @@ func enqueue(update *tgbotapi.Update, queueEditMsg *tgbotapi.Message) (*db.QItem
 	progressMsgInit := false
 	for true {
 		//timeout
-		if time.Now().Sub(beginTime).Seconds() > db.QueueTimeout {
+		if time.Now().Sub(beginTime).Seconds() > float64(db.QueueTimeout) {
 			utils.EditMsgText(queueEditMsg.Chat.ID, queueEditMsg.MessageID, languages.Get(update).BotMsg.ErrTimeout)
 			return nil, true
 		}

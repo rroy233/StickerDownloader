@@ -14,13 +14,12 @@ func QuitQueueQuery(update tgbotapi.Update) {
 		utils.CallBackWithAlert(update.CallbackQuery.ID, languages.Get(&update).BotMsg.ErrSysFailureOccurred)
 		return
 	}
+	utils.CallBack(update.CallbackQuery.ID, "ok")
 	UUID := update.CallbackQuery.Data[len(QuitQueueCallbackQueryPrefix):]
 	item, err := db.FindQueueItemByUUID(UUID)
 	if err != nil {
-		utils.CallBack(update.CallbackQuery.ID, err.Error())
 		utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID, languages.Get(&update).BotMsg.QueueAborted)
 	} else {
-		utils.CallBack(update.CallbackQuery.ID, "ok")
 		dequeue(item)
 	}
 	return

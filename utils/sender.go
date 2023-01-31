@@ -22,6 +22,7 @@ func addToSendQueue(msg tgbotapi.Chattable) {
 func sender() {
 	for {
 		msg, _ := <-msgQueue
+		rl.Take()
 		_, err := bot.Request(msg)
 		if err != nil {
 			logger.Error.Println(loggerPrefix + "[sender]" + err.Error())

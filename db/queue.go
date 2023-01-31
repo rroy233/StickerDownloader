@@ -43,8 +43,8 @@ type QItem struct {
 
 var queue *QStruct
 var maxQueueSize int
+var QueueTimeout int64
 
-const QueueTimeout = 60 //1min
 const queueCleanerInterval = 30 * time.Second
 
 func initQueue(maxSize int) {
@@ -53,6 +53,10 @@ func initQueue(maxSize int) {
 	} else {
 		maxQueueSize = maxSize
 	}
+
+	//队列任务超时时间
+	//队列最大长度*单个任务处理的最长时间(下载转码整套表情包的超时时间)
+	QueueTimeout = int64(maxSize * 60)
 
 	queue = new(QStruct)
 	queue.size = 0

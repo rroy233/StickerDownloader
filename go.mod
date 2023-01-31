@@ -7,11 +7,13 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/google/uuid v1.3.0
-	github.com/rroy233/logger v1.1.1
+	github.com/rroy233/logger v1.1.2
+	go.uber.org/ratelimit v0.2.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
+	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/jmoiron/sqlx v1.3.5 // indirect
