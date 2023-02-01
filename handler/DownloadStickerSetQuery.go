@@ -26,7 +26,7 @@ type downloadTask struct {
 func DownloadStickerSetQuery(update tgbotapi.Update) {
 	userInfo := utils.GetLogPrefixCallbackQuery(&update)
 
-	stickerSet, err := bot.GetStickerSet(tgbotapi.GetStickerSetConfig{
+	stickerSet, err := utils.BotGetStickerSet(tgbotapi.GetStickerSetConfig{
 		Name: update.CallbackQuery.Message.ReplyToMessage.Sticker.SetName,
 	})
 	if err != nil {
@@ -45,7 +45,7 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 
 	oMsg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, languages.Get(&update).BotMsg.Processing)
 	oMsg.ReplyToMessageID = update.CallbackQuery.Message.ReplyToMessage.MessageID
-	msg, err := bot.Send(oMsg)
+	msg, err := utils.BotSend(oMsg)
 	if err != nil {
 		logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to send <processing> msg:", err)
 		utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrSysFailureOccurred)
@@ -232,7 +232,7 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 		case sticker = <-queue:
 			i := task.finished + task.failed
 			sum := task.total
-			remoteFile, err := bot.GetFile(tgbotapi.FileConfig{
+			remoteFile, err := utils.BotGetFile(tgbotapi.FileConfig{
 				FileID: sticker.FileID,
 			})
 			if err != nil {

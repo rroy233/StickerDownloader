@@ -21,7 +21,7 @@ func AddStickerUrlMessage(update tgbotapi.Update) {
 		return
 	}
 
-	stickerSet, err := bot.GetStickerSet(tgbotapi.GetStickerSetConfig{
+	stickerSet, err := utils.BotGetStickerSet(tgbotapi.GetStickerSetConfig{
 		Name: update.Message.Text[len(addStickersUrlPrefix):],
 	})
 	if err != nil {
@@ -38,7 +38,7 @@ func AddStickerUrlMessage(update tgbotapi.Update) {
 	}
 
 	//try to download one
-	remoteFile, err := bot.GetFile(tgbotapi.FileConfig{
+	remoteFile, err := utils.BotGetFile(tgbotapi.FileConfig{
 		FileID: stickerSet.Stickers[0].FileID,
 	})
 	if err != nil {
@@ -55,7 +55,7 @@ func AddStickerUrlMessage(update tgbotapi.Update) {
 		return
 	}
 
-	StickerMsg, err := bot.Send(tgbotapi.NewSticker(update.Message.Chat.ID, tgbotapi.FileID(stickerSet.Stickers[0].FileID)))
+	StickerMsg, err := utils.BotSend(tgbotapi.NewSticker(update.Message.Chat.ID, tgbotapi.FileID(stickerSet.Stickers[0].FileID)))
 	if err != nil {
 		logger.Error.Println(userInfo+"bot.Send error", err)
 		utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrSysFailureOccurred)
@@ -64,7 +64,7 @@ func AddStickerUrlMessage(update tgbotapi.Update) {
 
 	msgTpl := tgbotapi.NewMessage(update.Message.Chat.ID, languages.Get(&update).BotMsg.Processing)
 	msgTpl.ReplyToMessageID = StickerMsg.MessageID
-	replyMsg, err := bot.Send(msgTpl)
+	replyMsg, err := utils.BotSend(msgTpl)
 	if err != nil {
 		logger.Error.Println(userInfo+"bot.Send error", err)
 		utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrSysFailureOccurred)
@@ -72,7 +72,7 @@ func AddStickerUrlMessage(update tgbotapi.Update) {
 	}
 
 	text := fmt.Sprintf(languages.Get(&update).BotMsg.StickersSetInfoFromUrl, stickerSet.Name, len(stickerSet.Stickers))
-	_, err = bot.Request(tgbotapi.NewEditMessageTextAndMarkup(update.Message.Chat.ID, replyMsg.MessageID, text, tgbotapi.NewInlineKeyboardMarkup(
+	err = utils.BotRequest(tgbotapi.NewEditMessageTextAndMarkup(update.Message.Chat.ID, replyMsg.MessageID, text, tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(languages.Get(&update).BotMsg.DownloadStickerSet, DownloadStickerSetCallbackQuery)),
 	)))
 	if err != nil {

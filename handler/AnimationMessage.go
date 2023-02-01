@@ -15,7 +15,7 @@ func AnimationMessage(update tgbotapi.Update) {
 
 	oMsg := tgbotapi.NewMessage(update.Message.Chat.ID, languages.Get(&update).BotMsg.Processing)
 	oMsg.ReplyToMessageID = update.Message.MessageID
-	msg, err := bot.Send(oMsg)
+	msg, err := utils.BotSend(oMsg)
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to send msg:", err)
 		return
@@ -28,7 +28,7 @@ func AnimationMessage(update tgbotapi.Update) {
 	}
 	//Enqueue
 
-	remoteFile, err := bot.GetFile(tgbotapi.FileConfig{
+	remoteFile, err := utils.BotGetFile(tgbotapi.FileConfig{
 		FileID: update.Message.Animation.FileID,
 	})
 	if err != nil {

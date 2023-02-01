@@ -53,7 +53,7 @@ func enqueue(update *tgbotapi.Update, queueEditMsg *tgbotapi.Message) (*db.QItem
 		//update waiting progress
 		if progressMsgInit == false {
 			//init msg and inline keyboard
-			_, err = bot.Request(tgbotapi.NewEditMessageTextAndMarkup(queueEditMsg.Chat.ID, queueEditMsg.MessageID, "Loading...",
+			err = utils.BotRequest(tgbotapi.NewEditMessageTextAndMarkup(queueEditMsg.Chat.ID, queueEditMsg.MessageID, "Loading...",
 				tgbotapi.NewInlineKeyboardMarkup(
 					tgbotapi.NewInlineKeyboardRow(
 						tgbotapi.NewInlineKeyboardButtonData(languages.Get(update).BotMsg.QueueAbortBtn, QuitQueueCallbackQueryPrefix+qItem.UUID),

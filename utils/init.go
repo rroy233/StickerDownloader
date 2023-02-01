@@ -6,17 +6,18 @@ import (
 	"github.com/rroy233/tg-stickers-dl/languages"
 	"go.uber.org/ratelimit"
 	"os"
+	"time"
 )
 
 var bot *tgbotapi.BotAPI
 var loggerPrefix = "[utils]"
-var rl ratelimit.Limiter
+var Limiter ratelimit.Limiter
 
 func Init(api *tgbotapi.BotAPI) {
-	//初始化rate limiter
+	//初始化rate Limiter
 	//TG官方对message发送频率有限制
 	//详见:https://core.telegram.org/bots/faq#broadcasting-to-users
-	rl = ratelimit.New(30)
+	Limiter = ratelimit.New(30, ratelimit.Per(1*time.Second))
 
 	bot = api
 	initSender(3)

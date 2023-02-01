@@ -48,7 +48,7 @@ func SendImg(update *tgbotapi.Update, fileData []byte) (msgSent tgbotapi.Message
 	} else if update.CallbackQuery != nil || update.CallbackQuery.Message != nil {
 		msg = tgbotapi.NewPhoto(update.CallbackQuery.Message.Chat.ID, file)
 	}
-	smsg, _ := bot.Send(msg)
+	smsg, _ := BotSend(msg)
 	return smsg
 }
 
@@ -65,6 +65,7 @@ func SendFile(update *tgbotapi.Update, filePath string) error {
 		msg = tgbotapi.NewMediaGroup(update.CallbackQuery.Message.Chat.ID, []interface{}{tgbotapi.NewInputMediaDocument(file)})
 	}
 
+	Limiter.Take()
 	_, err := bot.SendMediaGroup(msg)
 	if err != nil {
 		logger.Error.Println("failed to send file：", err)
@@ -118,6 +119,15 @@ func SendPlainTextWithKeyboard(update *tgbotapi.Update, text string, keyboard *t
 		}
 		addToSendQueue(msg)
 	}
+}
+func BotGetFile(config tgbotapi.FileConfig) (tgbotapi.File, error) {
+	Limiter.Take()
+	return bot.GetFile(config)
+}
+
+func BotGetStickerSet(config tgbotapi.GetStickerSetConfig) (tgbotapi.StickerSet, error) {
+	Limiter.Take()
+	return bot.GetStickerSet(config)
 }
 
 func DownloadFile(fileUrl string) (string, error) {
@@ -193,6 +203,7 @@ func GetUID(update *tgbotapi.Update) int64 {
 func CallBack(callbackQueryID string, text string) {
 	callback := tgbotapi.NewCallback(callbackQueryID, text)
 	//不能用bot.Send(callback)方法，有bug
+	Limiter.Take()
 	resp, err := bot.Request(callback)
 	if err != nil {
 		logger.Error.Println("[CallBack]bot.Request失败:", err)
@@ -207,6 +218,7 @@ func CallBack(callbackQueryID string, text string) {
 func CallBackWithAlert(callbackQueryID string, text string) {
 	callback := tgbotapi.NewCallbackWithAlert(callbackQueryID, text)
 	//不能用bot.Send(callback)方法，有bug
+	Limiter.Take()
 	resp, err := bot.Request(callback)
 	if err != nil {
 		logger.Error.Println("[CallBackWithAlert]bot.Request失败:", err)

@@ -15,7 +15,7 @@ func StickerMessage(update tgbotapi.Update) {
 
 	oMsg := tgbotapi.NewMessage(update.Message.Chat.ID, languages.Get(&update).BotMsg.Processing)
 	oMsg.ReplyToMessageID = update.Message.MessageID
-	msg, err := bot.Send(oMsg)
+	msg, err := utils.BotSend(oMsg)
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to send msg:", err)
 		return
@@ -28,7 +28,7 @@ func StickerMessage(update tgbotapi.Update) {
 	}
 	//Enqueue
 
-	remoteFile, err := bot.GetFile(tgbotapi.FileConfig{
+	remoteFile, err := utils.BotGetFile(tgbotapi.FileConfig{
 		FileID: update.Message.Sticker.FileID,
 	})
 	if err != nil {
@@ -70,7 +70,7 @@ func StickerMessage(update tgbotapi.Update) {
 		return
 	}
 
-	_, err = bot.Request(tgbotapi.NewEditMessageTextAndMarkup(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ConvertCompleted, tgbotapi.NewInlineKeyboardMarkup(
+	err = utils.BotRequest(tgbotapi.NewEditMessageTextAndMarkup(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ConvertCompleted, tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(languages.Get(&update).BotMsg.DownloadStickerSet, DownloadStickerSetCallbackQuery)),
 	)))
 	if err != nil {

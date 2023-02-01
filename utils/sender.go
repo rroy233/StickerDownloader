@@ -22,10 +22,31 @@ func addToSendQueue(msg tgbotapi.Chattable) {
 func sender() {
 	for {
 		msg, _ := <-msgQueue
-		rl.Take()
-		_, err := bot.Request(msg)
+		Limiter.Take()
+		resp, err := bot.Request(msg)
 		if err != nil {
-			logger.Error.Println(loggerPrefix + "[sender]" + err.Error())
+			logger.Error.Printf("%s[sender][%s]%s", loggerPrefix, err.Error(), JsonEncode(resp))
+			if resp.ErrorCode == 429 {
+				msgQueue <- msg
+			}
 		}
 	}
+}
+
+func BotRequest(c tgbotapi.Chattable) error {
+	Limiter.Take()
+	_, err := bot.Request(c)
+	if err != nil {
+		logger.Error.Println(loggerPrefix + "[BotRequest]" + err.Error())
+	}
+	return err
+}
+
+func BotSend(c tgbotapi.Chattable) (tgbotapi.Message, error) {
+	Limiter.Take()
+	msg, err := bot.Send(c)
+	if err != nil {
+		logger.Error.Println(loggerPrefix + "[BotSend]" + err.Error())
+	}
+	return msg, err
 }
