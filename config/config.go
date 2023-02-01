@@ -19,6 +19,11 @@ type Config struct {
 		UseExtFileHost          bool   `yaml:"use_ext_file_host"`
 		ProcessWaitQueueMaxSize int    `yaml:"process_wait_queue_max_size"`
 	} `yaml:"general"`
+	Cache struct {
+		Enabled      bool   `yaml:"enabled"`
+		StorageDir   string `yaml:"storage_dir"`
+		MaxDiskUsage int    `yaml:"max_disk_usage"`
+	} `json:"cache"`
 	Logger struct {
 		Report         bool   `yaml:"report"`
 		ReportUrl      string `yaml:"report_url"`

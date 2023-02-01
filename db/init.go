@@ -29,5 +29,8 @@ func Init() {
 	//queue
 	initQueue(config.Get().General.ProcessWaitQueueMaxSize)
 
+	//cache
+	initCache()
+
 	return
 }

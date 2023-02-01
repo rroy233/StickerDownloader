@@ -8,6 +8,11 @@ general:
   use_ext_file_host: false
   process_wait_queue_max_size: 50
 
+cache:
+  enabled: false
+  storage_dir: "./storage/cache"
+  max_disk_usage: 1024
+
 logger:
   report: false
   report_url: ""

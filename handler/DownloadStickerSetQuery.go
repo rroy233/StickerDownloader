@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/logger"
 	"github.com/rroy233/tg-stickers-dl/config"
+	"github.com/rroy233/tg-stickers-dl/db"
 	"github.com/rroy233/tg-stickers-dl/languages"
 	"github.com/rroy233/tg-stickers-dl/utils"
 	"os"
@@ -232,29 +233,44 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 		case sticker = <-queue:
 			i := task.finished + task.failed
 			sum := task.total
-			remoteFile, err := utils.BotGetFile(tgbotapi.FileConfig{
-				FileID: sticker.FileID,
-			})
-			if err != nil {
-				logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to get file:%s", i, sum, err.Error())
-				atomic.AddInt32(&task.failed, 1)
-				continue
-			}
 
-			tempFilePath, err := utils.DownloadFile(remoteFile.Link(config.Get().General.BotToken))
-			if err != nil {
-				logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to download:%s", i, sum, err.Error())
-				atomic.AddInt32(&task.failed, 1)
-				continue
-			}
+			cacheTmpFile, err := db.FindStickerCache(sticker.FileUniqueID)
+			if err == nil {
+				//命中缓存
+				err := utils.CopyFile(cacheTmpFile, fmt.Sprintf("%s/%d.gif", task.folderName, i))
+				utils.RemoveFile(cacheTmpFile)
+				if err != nil {
+					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to copy：%s", i, sum, err.Error())
+					atomic.AddInt32(&task.failed, 1)
+					continue
+				}
+			} else {
+				//未命中缓存
+				remoteFile, err := utils.BotGetFile(tgbotapi.FileConfig{
+					FileID: sticker.FileID,
+				})
+				if err != nil {
+					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to get file:%s", i, sum, err.Error())
+					atomic.AddInt32(&task.failed, 1)
+					continue
+				}
 
-			outFilePath := fmt.Sprintf("%s/%d.gif", task.folderName, i)
-			err = utils.ConvertToGif(tempFilePath, outFilePath)
-			utils.RemoveFile(tempFilePath)
-			if err != nil {
-				logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to convert：%s\n", i, sum, err.Error())
-				atomic.AddInt32(&task.failed, 1)
-				continue
+				tempFilePath, err := utils.DownloadFile(remoteFile.Link(config.Get().General.BotToken))
+				if err != nil {
+					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to download:%s", i, sum, err.Error())
+					atomic.AddInt32(&task.failed, 1)
+					continue
+				}
+
+				outFilePath := fmt.Sprintf("%s/%d.gif", task.folderName, i)
+				err = utils.ConvertToGif(tempFilePath, outFilePath)
+				utils.RemoveFile(tempFilePath)
+				if err != nil {
+					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to convert：%s\n", i, sum, err.Error())
+					atomic.AddInt32(&task.failed, 1)
+					continue
+				}
+				db.CacheSticker(sticker, outFilePath)
 			}
 			atomic.AddInt32(&task.finished, 1)
 		}

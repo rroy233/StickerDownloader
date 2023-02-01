@@ -2,7 +2,9 @@ package utils
 
 import (
 	"archive/zip"
+	"bufio"
 	"bytes"
+	"crypto/md5"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -214,9 +216,9 @@ func (f *UploadFile) UploadFragment(update *tgbotapi.Update) error {
 			}
 			f.CleanList = append(f.CleanList, fmt.Sprintf("%s_%d", f.FolderPath, folderIndex))
 		}
-		err = copyFile(fmt.Sprintf("%s/%s", f.FolderPath, entry.Name()), fmt.Sprintf("%s_%d/%s", f.FolderPath, folderIndex, entry.Name()))
+		err = CopyFile(fmt.Sprintf("%s/%s", f.FolderPath, entry.Name()), fmt.Sprintf("%s_%d/%s", f.FolderPath, folderIndex, entry.Name()))
 		if err != nil {
-			logger.Error.Println("UploadFragment copyFile error", err)
+			logger.Error.Println("UploadFragment CopyFile error", err)
 			continue
 		}
 		sizeSum += sizes[i]
@@ -285,7 +287,7 @@ func (f *UploadFile) getInfo() error {
 	return nil
 }
 
-func copyFile(src, dst string) error {
+func CopyFile(src, dst string) error {
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -308,6 +310,31 @@ func copyFile(src, dst string) error {
 	defer destination.Close()
 	_, err = io.Copy(destination, source)
 	return err
+}
+
+func MD5File(filename string) (string, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	hash := md5.New()
+	//bufferSize = 65536
+	for buf, reader := make([]byte, 65536), bufio.NewReader(file); ; {
+		n, err := reader.Read(buf)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return "", err
+		}
+
+		hash.Write(buf[:n])
+	}
+
+	checksum := fmt.Sprintf("%x", hash.Sum(nil))
+	return checksum, nil
 }
 
 // Compress 压缩文件

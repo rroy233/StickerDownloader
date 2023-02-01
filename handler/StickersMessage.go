@@ -5,9 +5,9 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/logger"
 	"github.com/rroy233/tg-stickers-dl/config"
+	"github.com/rroy233/tg-stickers-dl/db"
 	"github.com/rroy233/tg-stickers-dl/languages"
 	"github.com/rroy233/tg-stickers-dl/utils"
-	"time"
 )
 
 func StickerMessage(update tgbotapi.Update) {
@@ -35,28 +35,37 @@ func StickerMessage(update tgbotapi.Update) {
 		logger.Error.Println(userInfo+"failed to get file:", err)
 	}
 
-	tempFilePath, err := utils.DownloadFile(remoteFile.Link(config.Get().General.BotToken))
-	if err != nil {
-		logger.Error.Println(userInfo+"failed to download file:", err)
-	}
+	cacheFile, err := db.FindStickerCache(update.Message.Sticker.FileUniqueID)
+	outPath := ""
+	if err == nil {
+		//缓存存在
+		outPath = cacheFile
+	} else {
+		//缓存不存在
+		tempFilePath, err := utils.DownloadFile(remoteFile.Link(config.Get().General.BotToken))
+		if err != nil {
+			logger.Error.Println(userInfo+"failed to download file:", err)
+		}
 
-	logger.Info.Printf("%sGet sticker %s.%s", userInfo, update.Message.Sticker.SetName, update.Message.Sticker.Emoji)
+		logger.Info.Printf("%sGet sticker %s.%s", userInfo, update.Message.Sticker.SetName, update.Message.Sticker.Emoji)
 
-	//delete temp file
-	defer utils.RemoveFile(tempFilePath)
+		defer utils.RemoveFile(tempFilePath) //delete temp file
 
-	//check file type
-	if utils.GetFileExtName(tempFilePath) != "webp" && utils.GetFileExtName(tempFilePath) != "webm" {
-		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrStickerNotSupport)
-		return
-	}
+		//check file type
+		if utils.GetFileExtName(tempFilePath) != "webp" && utils.GetFileExtName(tempFilePath) != "webm" {
+			utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrStickerNotSupport)
+			return
+		}
 
-	outPath := fmt.Sprintf("./storage/tmp/convert_%d.gif", time.Now().UnixMicro())
-	err = utils.ConvertToGif(tempFilePath, outPath)
-	if err != nil {
-		logger.Error.Println(userInfo+"failed to convert:", err)
-		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrConvertFailed)
-		return
+		outPath = fmt.Sprintf("./storage/tmp/convert_%s.gif", utils.RandString())
+		err = utils.ConvertToGif(tempFilePath, outPath)
+		if err != nil {
+			logger.Error.Println(userInfo+"failed to convert:", err)
+			utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrConvertFailed)
+			return
+		}
+
+		db.CacheSticker(*update.Message.Sticker, outPath)
 	}
 
 	//Dequeue

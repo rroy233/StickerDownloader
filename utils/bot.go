@@ -7,6 +7,7 @@ import (
 	"github.com/rroy233/logger"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"strings"
 	"time"
@@ -289,4 +290,9 @@ func getPartIndex(text, part string) (offset, length int) {
 	}
 
 	return offset, len(PartUTF16)
+}
+
+func RandString() string {
+	rand.Seed(time.Now().UnixMicro())
+	return MD5Short(fmt.Sprintf("%d_%d", time.Now().UnixMicro(), rand.Int()))
 }
