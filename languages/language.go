@@ -98,7 +98,7 @@ func Get(update *tgbotapi.Update) *LanguageStruct {
 	languageCode := ""
 	if update.Message != nil && lang[update.Message.From.LanguageCode] != nil {
 		languageCode = update.Message.From.LanguageCode
-	} else if update.CallbackQuery != nil && lang[update.CallbackQuery.Message.From.LanguageCode] != nil {
+	} else if update.CallbackQuery != nil && lang[update.CallbackQuery.From.LanguageCode] != nil {
 		languageCode = update.CallbackQuery.From.LanguageCode
 	} else {
 		//no matched language, return default language
