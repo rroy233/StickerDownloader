@@ -95,12 +95,14 @@ func Get(update *tgbotapi.Update) *LanguageStruct {
 		return lang[config.Get().General.Language]
 	}
 
+	languageCode := ""
 	if update.Message != nil && lang[update.Message.From.LanguageCode] != nil {
-		return lang[update.Message.From.LanguageCode]
+		languageCode = update.Message.From.LanguageCode
 	} else if update.CallbackQuery != nil && lang[update.CallbackQuery.Message.From.LanguageCode] != nil {
-		return lang[update.CallbackQuery.From.LanguageCode]
+		languageCode = update.CallbackQuery.From.LanguageCode
+	} else {
+		//no matched language, return default language
+		languageCode = config.Get().General.Language
 	}
-
-	//no matched language, return default language
-	return lang[config.Get().General.Language]
+	return lang[languageCode]
 }
