@@ -49,7 +49,37 @@ func initCache() {
 	}
 
 	go cacheCleaner()
+	logger.Info.Printf("Cache Usage %dMB/%dMB", cacheLocalDiskUsage>>20, cacheMaxUsage>>20)
+	return
+}
 
+// 删除单个文件的缓存
+func cacheRemove(uniqueID string) {
+	record := rdb.Get(ctx, fmt.Sprintf("%s:Sticker_Cache:%s", ServicePrefix, utils.MD5Short(uniqueID))).Val()
+	if record == "" {
+		return
+	}
+
+	err := rdb.Del(ctx, fmt.Sprintf("%s:Sticker_Cache:%s", ServicePrefix, utils.MD5Short(uniqueID))).Err()
+	if err != nil {
+		logger.Error.Println("[cacheRemove]rdb.Del error", err)
+		return
+	}
+
+	item := new(stickerItem)
+	err = json.Unmarshal([]byte(record), item)
+	if err != nil {
+		logger.Error.Println("[cacheRemove]json.Unmarshal error", err)
+		return
+	}
+
+	if utils.IsExist(item.SavePath) == true {
+		err = os.Remove(item.SavePath)
+		if err != nil {
+			logger.Error.Println("[cacheRemove]os.Remove error", err)
+			return
+		}
+	}
 	return
 }
 
@@ -102,6 +132,8 @@ func FindStickerCache(uniqueID string) (string, error) {
 		return "", CacheErrorNotExist
 	}
 	if fileMd5 != item.MD5 {
+		logger.Error.Printf("Cache MD5 mismatch!! redis[%s]=%s localFile[%s]=%s", utils.JsonEncode(item), item.MD5, item.SavePath, fileMd5)
+		cacheRemove(item.Info.FileUniqueID)
 		return "", CacheErrorVerifyFailed
 	}
 
@@ -115,6 +147,37 @@ func FindStickerCache(uniqueID string) (string, error) {
 	return newFilePath, nil
 }
 
+// ClearCache 清除缓存
+// 返回string为结果描述
+func ClearCache() (string, error) {
+	if cacheEnabled == false {
+		return "", CacheErrorDisabled
+	}
+
+	keys := rdb.Keys(ctx, fmt.Sprintf("%s:Sticker_Cache:*", ServicePrefix)).Val()
+	countRedis := len(keys)
+	for _, key := range keys {
+		rdb.Del(ctx, key)
+	}
+
+	files, err := os.ReadDir(cacheDir)
+	if err != nil {
+		return "", errors.New("read cache dir error:" + err.Error())
+	}
+	countLocal := len(files)
+	for _, file := range files {
+		err := os.Remove(fmt.Sprintf("%s/%s", cacheDir, file.Name()))
+		if err != nil {
+			logger.Error.Println("[ClearCache]Cache remove error:", err)
+		}
+	}
+	cacheDoClean()
+	return fmt.Sprintf("Succeed!\nRemoved %d records from Redis\nRemoved %d files from localStorage!", countRedis, countLocal), nil
+}
+
+// CacheSticker 缓存贴纸
+//
+// 传入tgbotapi.Sticker 和 convertedFilePath已转码文件的地址
 func CacheSticker(sticker tgbotapi.Sticker, convertedFilePath string) {
 	if cacheEnabled == false {
 		return
@@ -162,9 +225,13 @@ func CacheSticker(sticker tgbotapi.Sticker, convertedFilePath string) {
 }
 
 func cacheCleaner() {
+	old := int64(0)
 	for true {
+		old = cacheLocalDiskUsage
 		cacheDoClean()
-		logger.Info.Printf("Cache Usage %dMB/%dMB", cacheLocalDiskUsage>>20, cacheMaxUsage>>20)
+		if cacheLocalDiskUsage != old {
+			logger.Info.Printf("Cache Usage %dMB/%dMB", cacheLocalDiskUsage>>20, cacheMaxUsage>>20)
+		}
 		time.Sleep(CacheCleanInterval)
 	}
 }

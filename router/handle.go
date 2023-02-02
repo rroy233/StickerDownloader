@@ -23,12 +23,16 @@ func Handle(update tgbotapi.Update) {
 			handler.StartCommand(update)
 		case "help":
 			handler.HelpCommand(update)
-		case "reload":
-			handler.ReloadConfigCommand(update)
 		case "getlimit":
 			handler.GetLimitCommand(update)
 		case "invite":
 			handler.InviteCommand(update)
+		case "admin": //admin
+			handler.AdminCommand(update)
+		case "reload": //admin
+			handler.ReloadConfigCommand(update)
+		case "clearcache": //admin
+			handler.ClearCacheCommand(update)
 		}
 	}
 

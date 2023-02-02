@@ -67,6 +67,7 @@ get `bot_token` , and finish command setting.
 ```
 help - Help
 getlimit - Get remaining usage times
+admin - Get admin commands
 ```
 
 #### Create Config File
