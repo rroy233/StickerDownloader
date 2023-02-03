@@ -14,6 +14,14 @@ import (
 	"unicode/utf16"
 )
 
+type ChatAction string
+
+const (
+	ChatActionTyping       = ChatAction("typing")
+	ChatActionUploadPhoto  = ChatAction("upload_photo")
+	ChatActionSendDocument = ChatAction("upload_document")
+)
+
 func SendPlainText(update *tgbotapi.Update, text string, entity ...tgbotapi.MessageEntity) {
 	if update.Message == nil {
 		return
@@ -169,6 +177,10 @@ func DownloadFile(fileUrl string) (string, error) {
 	}
 
 	return fileName, nil
+}
+
+func SendAction(chaiID int64, action ChatAction) {
+	msgQueue <- tgbotapi.NewChatAction(chaiID, string(action))
 }
 
 func EditMsgText(chatID int64, msgID int, msg string, entity ...tgbotapi.MessageEntity) {

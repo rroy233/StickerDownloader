@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/logger"
@@ -52,7 +53,9 @@ func AnimationMessage(update tgbotapi.Update) {
 	}
 
 	outPath := fmt.Sprintf("./storage/tmp/convert_%d.gif", time.Now().UnixMicro())
-	err = utils.ConvertToGif(tempFilePath, outPath)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	err = utils.ConvertToGif(ctx, tempFilePath, outPath)
+	cancel()
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to convert:", err)
 		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrConvertFailed)

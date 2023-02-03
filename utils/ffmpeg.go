@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"github.com/rroy233/logger"
 	"os/exec"
@@ -10,8 +11,8 @@ import (
 
 type logWriter struct{}
 
-func ConvertToGif(inFile, outFile string) error {
-	cmd := exec.Command("./ffmpeg/"+getFfmpeg(), strings.Split(fmt.Sprintf("-y -i %s -vf scale=-1:-1 %s", inFile, outFile), " ")...)
+func ConvertToGif(ctx context.Context, inFile, outFile string) error {
+	cmd := exec.CommandContext(ctx, "./ffmpeg/"+getFfmpeg(), strings.Split(fmt.Sprintf("-y -i %s -vf scale=-1:-1 %s", inFile, outFile), " ")...)
 	cmd.Stdout = logWriter{}
 
 	err := cmd.Run()

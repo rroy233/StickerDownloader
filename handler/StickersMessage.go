@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/logger"
@@ -8,6 +9,7 @@ import (
 	"github.com/rroy233/tg-stickers-dl/db"
 	"github.com/rroy233/tg-stickers-dl/languages"
 	"github.com/rroy233/tg-stickers-dl/utils"
+	"time"
 )
 
 func StickerMessage(update tgbotapi.Update) {
@@ -58,7 +60,9 @@ func StickerMessage(update tgbotapi.Update) {
 		}
 
 		outPath = fmt.Sprintf("./storage/tmp/convert_%s.gif", utils.RandString())
-		err = utils.ConvertToGif(tempFilePath, outPath)
+		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		err = utils.ConvertToGif(ctx, tempFilePath, outPath)
+		cancel()
 		if err != nil {
 			logger.Error.Println(userInfo+"failed to convert:", err)
 			utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrConvertFailed)
@@ -72,6 +76,7 @@ func StickerMessage(update tgbotapi.Update) {
 	dequeue(qItem)
 	//Dequeue
 
+	utils.SendAction(update.Message.Chat.ID, utils.ChatActionSendDocument)
 	err = utils.SendFile(&update, outPath)
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to SendFile:", err)

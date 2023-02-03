@@ -232,6 +232,7 @@ func (f *UploadFile) UploadFragment(update *tgbotapi.Update) error {
 		}
 		f.CleanList = append(f.CleanList, fmt.Sprintf("%s_part-%d.zip", f.FolderPath, i))
 
+		SendAction(GetChatID(update), ChatActionSendDocument)
 		err = SendFile(update, fmt.Sprintf("%s_part-%d.zip", f.FolderPath, i))
 		if err != nil {
 			logger.Error.Println("UploadFragment SendFile error", err)
@@ -409,4 +410,13 @@ func CleanTmp() {
 	if err != nil {
 		logger.Error.Println("failed to clean temp files", err)
 	}
+}
+
+func GetChatID(update *tgbotapi.Update) int64 {
+	if update.Message != nil {
+		return update.Message.Chat.ID
+	} else if update.CallbackQuery != nil && update.CallbackQuery.Message != nil {
+		return update.CallbackQuery.Message.Chat.ID
+	}
+	return -1
 }

@@ -164,6 +164,7 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 				logger.Info.Println(userInfo + "DownloadStickerSetQuery- third party NOT available！！！")
 			}
 			logger.Info.Println(userInfo + "DownloadStickerSetQuery-uploading(third party)")
+			utils.SendAction(update.CallbackQuery.Message.Chat.ID, utils.ChatActionSendDocument)
 			err = uploadTask.Upload2FileHost()
 			if err != nil {
 				logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to upload:", err)
@@ -263,7 +264,7 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 				}
 
 				outFilePath := fmt.Sprintf("%s/%d.gif", task.folderName, i)
-				err = utils.ConvertToGif(tempFilePath, outFilePath)
+				err = utils.ConvertToGif(ctx, tempFilePath, outFilePath)
 				utils.RemoveFile(tempFilePath)
 				if err != nil {
 					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to convert：%s\n", i, sum, err.Error())
