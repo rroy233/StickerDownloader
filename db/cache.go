@@ -17,8 +17,8 @@ var cacheEnabled bool
 var cacheDir string
 var cacheMaxUsage int64
 
-var CacheExpire = 24 * time.Hour
-var CacheCleanInterval = 30 * time.Minute
+var CacheExpire time.Duration
+var CacheCleanInterval time.Duration
 
 var (
 	CacheErrorDisabled     = errors.New("CacheErrorDisabled")
@@ -34,6 +34,8 @@ func initCache() {
 	}
 	loggerPrefix := "[CacheInit]"
 	cacheEnabled = true
+
+	//check StorageDir
 	if utils.IsExist(config.Get().Cache.StorageDir) == false {
 		err := os.Mkdir(config.Get().Cache.StorageDir, 0755)
 		if err != nil {
@@ -42,14 +44,31 @@ func initCache() {
 	}
 	cacheDir = config.Get().Cache.StorageDir
 
+	//check cacheMaxUsage
 	cacheMaxUsage = int64(config.Get().Cache.MaxDiskUsage << 20)
+	if cacheMaxUsage == 0 {
+		logger.FATAL.Println("MaxDiskUsage Invalid!")
+	}
+	//check CacheExpire and CacheCleanInterval
+	if config.Get().Cache.CacheExpire == 0 || config.Get().Cache.CacheCleanInterval == 0 {
+		logger.FATAL.Println("CacheExpire or CacheCleanInterval Invalid!")
+	}
+
+	//set CacheExpire and CacheCleanInterval
+	CacheExpire = time.Duration(config.Get().Cache.CacheExpire) * time.Second
+	CacheCleanInterval = time.Duration(config.Get().Cache.CacheCleanInterval) * time.Second
+
+	//calculate local disk usage
 	err := cacheGetLocalDiskUsage()
 	if err != nil {
 		logger.FATAL.Println(loggerPrefix+"Failed to calculate local storage usage:", err)
 	}
 
+	//start cleaner
 	go cacheCleaner()
+
 	logger.Info.Printf("Cache Usage %dMB/%dMB", cacheLocalDiskUsage>>20, cacheMaxUsage>>20)
+
 	return
 }
 
@@ -280,7 +299,6 @@ func cacheDoClean() {
 		}
 		if checkMap[strings.Split(entry.Name(), "_")[1]] == 0 {
 			utils.RemoveFile(fmt.Sprintf("%s/%s", cacheDir, entry.Name()))
-			logger.Info.Printf("%s cache file [%s] expired", loggerPrefix, entry.Name())
 			itemMapByFilename[entry.Name()] = nil
 		}
 	}

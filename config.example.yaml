@@ -12,6 +12,8 @@ cache:
   enabled: false
   storage_dir: "./storage/cache"
   max_disk_usage: 1024
+  cache_expire: 86400
+  cache_clean_interval: 1800
 
 logger:
   report: false

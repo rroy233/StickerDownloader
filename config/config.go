@@ -20,9 +20,11 @@ type Config struct {
 		ProcessWaitQueueMaxSize int    `yaml:"process_wait_queue_max_size"`
 	} `yaml:"general"`
 	Cache struct {
-		Enabled      bool   `yaml:"enabled"`
-		StorageDir   string `yaml:"storage_dir"`
-		MaxDiskUsage int    `yaml:"max_disk_usage"`
+		Enabled            bool   `yaml:"enabled"`
+		StorageDir         string `yaml:"storage_dir"`
+		MaxDiskUsage       int    `yaml:"max_disk_usage"`
+		CacheExpire        int    `yaml:"cache_expire"`
+		CacheCleanInterval int    `yaml:"cache_clean_interval"`
 	} `json:"cache"`
 	Logger struct {
 		Report         bool   `yaml:"report"`
