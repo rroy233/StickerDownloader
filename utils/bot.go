@@ -170,7 +170,7 @@ func DownloadFile(fileUrl string) (string, error) {
 		oFileName = urls[len(urls)-1]
 	}
 
-	fileName := fmt.Sprintf("./storage/tmp/upload_%d_%s", time.Now().UnixMicro(), oFileName)
+	fileName := fmt.Sprintf("./storage/tmp/upload_%s_%s", RandString(), oFileName)
 	err = ioutil.WriteFile(fileName, data, 0666)
 	if err != nil {
 		return "", err
@@ -305,6 +305,6 @@ func getPartIndex(text, part string) (offset, length int) {
 }
 
 func RandString() string {
-	rand.Seed(time.Now().UnixMicro())
-	return MD5Short(fmt.Sprintf("%d_%d", time.Now().UnixMicro(), rand.Int()))
+	rand.Seed(time.Now().UnixNano())
+	return MD5Short(fmt.Sprintf("%d_%d", time.Now().UnixNano(), rand.Int()))
 }
