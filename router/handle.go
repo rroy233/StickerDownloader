@@ -13,6 +13,11 @@ import (
 	"time"
 )
 
+const (
+	rateLimitShort = 2 * time.Second
+	rateLimitLong  = 10 * time.Second
+)
+
 func Handle(update tgbotapi.Update) {
 	logger.Info.Println(utils.LogUserInfo(&update) + utils.JsonEncode(update))
 	//command
@@ -49,10 +54,8 @@ func Handle(update tgbotapi.Update) {
 			return
 		}
 		//访问频率控制
-		if limitLast := db.CheckUserRateLimit(utils.GetUID(&update), 5*time.Second); limitLast != -1 {
-			if limitLast < 3 { //not reply to over-frequent msg
-				utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrRateReachLimit)
-			}
+		if limitLast := db.CheckUserRateLimit(utils.GetUID(&update), rateLimitShort); limitLast != -1 {
+			utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrRateReachLimit)
 			return
 		}
 		handler.StickerMessage(update)
@@ -65,10 +68,8 @@ func Handle(update tgbotapi.Update) {
 			return
 		}
 		//访问频率控制
-		if limitLast := db.CheckUserRateLimit(utils.GetUID(&update), 5*time.Second); limitLast != -1 {
-			if limitLast < 3 { //not reply to over-frequent msg
-				utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrRateReachLimit)
-			}
+		if limitLast := db.CheckUserRateLimit(utils.GetUID(&update), rateLimitShort); limitLast != -1 {
+			utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrRateReachLimit)
 			return
 		}
 		handler.AnimationMessage(update)
@@ -84,10 +85,8 @@ func Handle(update tgbotapi.Update) {
 				return
 			}
 			//访问频率控制
-			if limitLast := db.CheckUserRateLimit(utils.GetUID(&update), 10*time.Second); limitLast != -1 {
-				if limitLast < 8 { //not reply to over-frequent msg
-					utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrRateReachLimit)
-				}
+			if limitLast := db.CheckUserRateLimit(utils.GetUID(&update), rateLimitLong); limitLast != -1 {
+				utils.CallBackWithAlert(update.CallbackQuery.ID, languages.Get(&update).BotMsg.ErrRateReachLimit)
 				return
 			}
 			handler.DownloadStickerSetQuery(update)
