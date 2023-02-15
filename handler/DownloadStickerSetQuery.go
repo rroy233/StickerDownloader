@@ -238,7 +238,7 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 			cacheTmpFile, err := db.FindStickerCache(sticker.FileUniqueID)
 			if err == nil {
 				//命中缓存
-				err := utils.CopyFile(cacheTmpFile, fmt.Sprintf("%s/%d.gif", task.folderName, i))
+				err := utils.CopyFile(cacheTmpFile, fmt.Sprintf("%s/%s.gif", task.folderName, sticker.FileUniqueID))
 				utils.RemoveFile(cacheTmpFile)
 				if err != nil {
 					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to copy：%s", i, sum, err.Error())
@@ -263,7 +263,7 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 					continue
 				}
 
-				outFilePath := fmt.Sprintf("%s/%d.gif", task.folderName, i)
+				outFilePath := fmt.Sprintf("%s/%s.gif", task.folderName, sticker.FileUniqueID)
 				err = utils.ConvertToGif(ctx, tempFilePath, outFilePath)
 				utils.RemoveFile(tempFilePath)
 				if err != nil {
