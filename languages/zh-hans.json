@@ -22,6 +22,7 @@
 		"queue_abort_btn": "退出排队",
 		"queue_aborted": "已成功退出排队!",
 		"queue_process": "正在为您排队等候，前面有%d项任务待处理。。。",
+		"err_rate_reach_limit": "慢一点，我受不了(>_<)!",
 		"err_sys_busy": "系统繁忙，请稍后再试！",
 		"err_no_permission": "您无权限使用",
 		"err_reach_limit": "您目前每24小时只允许使用%d次，您的使用已达到限制。",

@@ -9,8 +9,6 @@ import (
 	"time"
 )
 
-const ServicePrefix = "StickerDl"
-
 // CheckLimit 用户是否已达到今日限额
 func CheckLimit(update *tgbotapi.Update) bool {
 	UID := int64(0)
@@ -38,15 +36,24 @@ func CheckLimit(update *tgbotapi.Update) bool {
 	return false
 }
 
-// GetLimit 获取该用户今日可用次数
+// 获取该用户已使用的次数
+func getUsed(UID int64) int {
+	limit := rdb.Get(ctx, fmt.Sprintf("%s:UserLimit:%d", ServicePrefix, UID)).Val()
+	if limit == "" {
+		return -1
+	}
+	limitTimes, _ := strconv.Atoi(limit)
+	return limitTimes
+}
+
+// GetLimit 获取该用户今日剩余可用次数
 func GetLimit(UID int64) int {
 	if UID == config.Get().General.AdminUID {
 		return -1
 	}
-	limit := rdb.Get(ctx, fmt.Sprintf("%s:UserLimit:%d", ServicePrefix, UID)).Val()
-	if limit == "" {
+	limitTimes := getUsed(UID)
+	if limitTimes == -1 {
 		return config.Get().General.UserDailyLimit
 	}
-	limitTimes, _ := strconv.Atoi(limit)
 	return config.Get().General.UserDailyLimit - limitTimes
 }

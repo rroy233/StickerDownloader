@@ -34,6 +34,7 @@ type LanguageStruct struct {
 		QueueAbortBtn           string `json:"queue_abort_btn"`
 		QueueAborted            string `json:"queue_aborted"`
 		QueueProcess            string `json:"queue_process"`
+		ErrRateReachLimit       string `json:"err_rate_reach_limit"`
 		ErrSysBusy              string `json:"err_sys_busy"`
 		ErrNoPermission         string `json:"err_no_permission"`
 		ErrReachLimit           string `json:"err_reach_limit"`

@@ -10,6 +10,7 @@ import (
 	"github.com/rroy233/tg-stickers-dl/languages"
 	"github.com/rroy233/tg-stickers-dl/utils"
 	"strings"
+	"time"
 )
 
 func Handle(update tgbotapi.Update) {
@@ -47,6 +48,13 @@ func Handle(update tgbotapi.Update) {
 			utils.SendPlainText(&update, fmt.Sprintf(languages.Get(&update).BotMsg.ErrReachLimit, config.Get().General.UserDailyLimit))
 			return
 		}
+		//访问频率控制
+		if limitLast := db.CheckUserRateLimit(utils.GetUID(&update), 5*time.Second); limitLast != -1 {
+			if limitLast < 3 { //not reply to over-frequent msg
+				utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrRateReachLimit)
+			}
+			return
+		}
 		handler.StickerMessage(update)
 	}
 
@@ -54,6 +62,13 @@ func Handle(update tgbotapi.Update) {
 	if update.Message != nil && update.Message.Animation != nil {
 		if db.CheckLimit(&update) == true {
 			utils.SendPlainText(&update, fmt.Sprintf(languages.Get(&update).BotMsg.ErrReachLimit, config.Get().General.UserDailyLimit))
+			return
+		}
+		//访问频率控制
+		if limitLast := db.CheckUserRateLimit(utils.GetUID(&update), 5*time.Second); limitLast != -1 {
+			if limitLast < 3 { //not reply to over-frequent msg
+				utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrRateReachLimit)
+			}
 			return
 		}
 		handler.AnimationMessage(update)
@@ -66,6 +81,13 @@ func Handle(update tgbotapi.Update) {
 		case data == handler.DownloadStickerSetCallbackQuery:
 			if db.CheckLimit(&update) == true {
 				utils.CallBackWithAlert(update.CallbackQuery.ID, fmt.Sprintf(languages.Get(&update).BotMsg.ErrReachLimit, config.Get().General.UserDailyLimit))
+				return
+			}
+			//访问频率控制
+			if limitLast := db.CheckUserRateLimit(utils.GetUID(&update), 10*time.Second); limitLast != -1 {
+				if limitLast < 8 { //not reply to over-frequent msg
+					utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrRateReachLimit)
+				}
 				return
 			}
 			handler.DownloadStickerSetQuery(update)

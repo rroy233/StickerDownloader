@@ -13,6 +13,8 @@ import (
 var rdb *redis.Client
 var ctx = context.Background()
 
+const ServicePrefix = "StickerDl"
+
 func Init() {
 	var tlsConfig *tls.Config
 	if config.Get().Redis.TLS == true {

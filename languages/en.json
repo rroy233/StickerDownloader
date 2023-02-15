@@ -22,6 +22,7 @@
     "queue_abort_btn": "Quit",
     "queue_aborted": "Quit successfully!",
     "queue_process": "Waiting in line for you, %d tasks ahead...",
+    "err_rate_reach_limit": "Slow down, I can't take it (>_<)!",
     "err_sys_busy": "The system is busy, please try again later!",
     "err_no_permission": "Permission denied!!",
     "err_reach_limit": "Your are only allow to use %d times per 24h currently, and your usage reached limitation.",
