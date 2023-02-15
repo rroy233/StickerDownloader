@@ -29,6 +29,9 @@ func StickerMessage(update tgbotapi.Update) {
 		return
 	}
 	//Enqueue
+	//Dequeue
+	defer dequeue(qItem)
+	//Dequeue
 
 	remoteFile, err := utils.BotGetFile(tgbotapi.FileConfig{
 		FileID: update.Message.Sticker.FileID,
@@ -71,10 +74,6 @@ func StickerMessage(update tgbotapi.Update) {
 
 		db.CacheSticker(*update.Message.Sticker, outPath)
 	}
-
-	//Dequeue
-	dequeue(qItem)
-	//Dequeue
 
 	utils.SendAction(update.Message.Chat.ID, utils.ChatActionSendDocument)
 	err = utils.SendFile(&update, outPath)
