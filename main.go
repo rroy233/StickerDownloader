@@ -78,6 +78,9 @@ func Stop() {
 
 	//clean temp files
 	utils.CleanTmp()
+
+	//close db
+	db.Close()
 }
 
 func worker(stopCtx context.Context, uc tgbotapi.UpdatesChannel, cancelCh chan int) {

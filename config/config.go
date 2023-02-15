@@ -34,6 +34,7 @@ type Config struct {
 	Redis struct {
 		Server   string `yaml:"server"`
 		Port     string `yaml:"port"`
+		TLS      bool   `yaml:"tls"`
 		Password string `yaml:"password"`
 		DB       int    `yaml:"db"`
 	} `yaml:"redis"`

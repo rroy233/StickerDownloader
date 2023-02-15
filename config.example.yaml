@@ -23,5 +23,6 @@ logger:
 redis:
   server: "localhost"
   port: "6379"
+  tls: false
   password: ""
   db: 0
