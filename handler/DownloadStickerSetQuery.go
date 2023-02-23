@@ -27,12 +27,19 @@ type downloadTask struct {
 func DownloadStickerSetQuery(update tgbotapi.Update) {
 	userInfo := utils.GetLogPrefixCallbackQuery(&update)
 
+	if update.CallbackQuery.Message.ReplyToMessage == nil {
+		logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to GetStickerSet:", "Msg deleted")
+		utils.CallBackWithAlert(update.CallbackQuery.ID, languages.Get(&update).BotMsg.ErrFailedToDownload)
+		return
+	}
+
 	stickerSet, err := utils.BotGetStickerSet(tgbotapi.GetStickerSetConfig{
 		Name: update.CallbackQuery.Message.ReplyToMessage.Sticker.SetName,
 	})
 	if err != nil {
 		logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to GetStickerSet:", err)
 		utils.CallBackWithAlert(update.CallbackQuery.ID, languages.Get(&update).BotMsg.ErrFailedToDownload)
+		return
 	}
 
 	//remove old msg to prevent frequent request
