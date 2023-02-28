@@ -3,19 +3,13 @@ package utils
 import (
 	"archive/zip"
 	"bufio"
-	"bytes"
 	"crypto/md5"
-	"encoding/json"
-	"errors"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/logger"
 	"io"
-	"mime/multipart"
-	"net/http"
 	"os"
 	"strings"
-	"time"
 )
 
 const MB = 1 << 20
@@ -23,55 +17,7 @@ const MB = 1 << 20
 type UploadFile struct {
 	ZipPath    string
 	FolderPath string
-	UploadRes  *fileHostUploadResp
-	InfoRes    *fileHostInfoResp
 	CleanList  []string
-}
-
-type fileHostUploadResp struct {
-	Status bool `json:"status"`
-	Data   struct {
-		File struct {
-			Url struct {
-				Full  string `json:"full"`
-				Short string `json:"short"`
-			} `json:"url"`
-			Metadata struct {
-				Id   string `json:"id"`
-				Name string `json:"name"`
-				Size struct {
-					Bytes    interface{} `json:"bytes"`
-					Readable string      `json:"readable"`
-				} `json:"size"`
-			} `json:"metadata"`
-		} `json:"file"`
-	} `json:"data,omitempty"`
-	Errors struct {
-		File []string `json:"file"`
-	} `json:"errors,omitempty"`
-}
-
-type fileHostInfoResp struct {
-	Status bool `json:"status"`
-	Data   struct {
-		File struct {
-			Url struct {
-				Full  string `json:"full"`
-				Short string `json:"short"`
-			} `json:"url"`
-			Metadata struct {
-				Id   string `json:"id"`
-				Name string `json:"name"`
-				Size struct {
-					Bytes    interface{} `json:"bytes"`
-					Readable string      `json:"readable"`
-				} `json:"size"`
-			} `json:"metadata"`
-		} `json:"file"`
-	} `json:"data,omitempty"`
-	Errors struct {
-		File string `json:"file"`
-	} `json:"errors,omitempty"`
 }
 
 func IsExist(path string) bool {
@@ -92,89 +38,6 @@ func NewUploadFile(zipPath, folderPath string) *UploadFile {
 		ZipPath:    zipPath,
 		FolderPath: folderPath,
 	}
-}
-
-func (f *UploadFile) CheckAvailable() bool {
-	req, err := http.NewRequest(http.MethodHead, "https://api.anonfiles.com", nil)
-	if err != nil {
-		logger.Error.Println("CheckAvailable - NewRequest error", err)
-		return false
-	}
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		logger.Error.Println("CheckAvailable - client.Do error", err)
-		return false
-	}
-	if resp.StatusCode != 200 {
-		return false
-	}
-	return true
-}
-
-func (f *UploadFile) Upload2FileHost() error {
-
-	file, _ := os.Open(f.ZipPath)
-	defer file.Close()
-
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile("file", f.ZipPath)
-	if err != nil {
-		logger.Error.Println("Upload2FileHost-CreateFormFile failed", err)
-		return err
-	}
-	_, err = io.Copy(part, file)
-	if err != nil {
-		logger.Error.Println("Upload2FileHost-io.Copy failed", err)
-		return err
-	}
-	writer.Close()
-
-	r, _ := http.NewRequest("POST", "https://api.anonfiles.com/upload", body)
-	r.Header.Add("Content-Type", writer.FormDataContentType())
-	client := &http.Client{Timeout: 60 * time.Second}
-	resp, err := client.Do(r)
-	if err != nil {
-		logger.Error.Println("Upload2FileHost-http request err:", err)
-		return err
-	}
-	defer resp.Body.Close()
-
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		logger.Error.Println("Upload2FileHost-failed to read http body:", err)
-		return err
-	}
-
-	if resp.StatusCode != 200 {
-		logger.Error.Println("Upload2FileHost-api return:", string(data))
-		logger.Error.Println("Upload2FileHost-http request Status:", resp.StatusCode)
-		return errors.New("http request Status " + resp.Status)
-	}
-
-	logger.Info.Println("Upload2FileHost-api return:", string(data))
-
-	uploadApiRes := new(fileHostUploadResp)
-	err = json.Unmarshal(data, uploadApiRes)
-	if err != nil {
-		logger.Error.Println("Upload2FileHost-failed to parse body:", err)
-		return err
-	}
-	if uploadApiRes.Status == false {
-		logger.Error.Println("Upload2FileHost-api return error:", uploadApiRes.Errors.File)
-		return err
-	}
-
-	f.UploadRes = uploadApiRes
-
-	//获取信息
-	if err := f.getInfo(); err != nil {
-		logger.Error.Println("Upload2FileHost-getInfo error:", err)
-		return err
-	}
-
-	return nil
 }
 
 func (f *UploadFile) UploadFragment(update *tgbotapi.Update) error {
@@ -250,42 +113,6 @@ func (f *UploadFile) Clean() {
 		}
 	}
 	return
-}
-
-func (f *UploadFile) getInfo() error {
-	if f.UploadRes == nil {
-		return errors.New("f.UploadRes nil")
-	}
-
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.anonfiles.com/v2/file/%s/info", f.UploadRes.Data.File.Metadata.Id), nil)
-	if err != nil {
-		return err
-	}
-
-	client := &http.Client{Timeout: 5 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	logger.Info.Println("Upload2FileHost-api return:", string(data))
-
-	infoApiRes := new(fileHostInfoResp)
-	err = json.Unmarshal(data, infoApiRes)
-	if err != nil {
-		return err
-	}
-	if infoApiRes.Status == false {
-		return err
-	}
-	f.InfoRes = infoApiRes
-	return nil
 }
 
 func CopyFile(src, dst string) error {

@@ -162,52 +162,24 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 	if fileStat.Size() > 50*MB {
 		uploadTask := utils.NewUploadFile(zipFilePath, folderPath)
 
-		//check third-Party service available
-		thirdPartyAvailable := false
-		if config.Get().General.UseExtFileHost {
-			if uploadTask.CheckAvailable() == true {
-				thirdPartyAvailable = true
-			} else {
-				logger.Info.Println(userInfo + "DownloadStickerSetQuery- third party NOT available！！！")
-			}
-			logger.Info.Println(userInfo + "DownloadStickerSetQuery-uploading(third party)")
-			utils.SendAction(update.CallbackQuery.Message.Chat.ID, utils.ChatActionSendDocument)
-			err = uploadTask.Upload2FileHost()
-			if err != nil {
-				logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to upload:", err)
-				thirdPartyAvailable = false
-			}
+		// upload via Telegram separately
+		err = uploadTask.UploadFragment(&update)
+		if err != nil {
+			logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to upload:", err)
+			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrUploadFailed)
+			return
 		}
 
-		if config.Get().General.UseExtFileHost && thirdPartyAvailable == true {
-			text := fmt.Sprintf(languages.Get(&update).BotMsg.UploadedThirdParty, stickerSet.Name, uploadTask.InfoRes.Data.File.Metadata.Size.Readable, uploadTask.InfoRes.Data.File.Url.Short)
-			utils.EditMsgText(
-				update.CallbackQuery.Message.Chat.ID, msg.MessageID,
-				text,
-				utils.EntityBold(text, stickerSet.Name),
-				utils.EntityBold(text, uploadTask.InfoRes.Data.File.Metadata.Size.Readable),
-			)
-			logger.Info.Println(userInfo + "DownloadStickerSetQuery-upload (third party) successfully！！！")
-		} else {
-			// upload via Telegram separately
-			err = uploadTask.UploadFragment(&update)
-			if err != nil {
-				logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to upload:", err)
-				utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrUploadFailed)
-				return
-			}
+		text := fmt.Sprintf(languages.Get(&update).BotMsg.UploadedTelegram, stickerSet.Name, fileStat.Size()>>20)
+		utils.EditMsgText(
+			update.CallbackQuery.Message.Chat.ID,
+			msg.MessageID,
+			text,
+			utils.EntityBold(text, stickerSet.Name),
+			utils.EntityBold(text, fmt.Sprintf("%d", fileStat.Size()>>20)),
+		)
 
-			text := fmt.Sprintf(languages.Get(&update).BotMsg.UploadedTelegram, stickerSet.Name, fileStat.Size()>>20)
-			utils.EditMsgText(
-				update.CallbackQuery.Message.Chat.ID,
-				msg.MessageID,
-				text,
-				utils.EntityBold(text, stickerSet.Name),
-				utils.EntityBold(text, fmt.Sprintf("%d", fileStat.Size()>>20)),
-			)
-
-			logger.Info.Println(userInfo + "DownloadStickerSetQuery-upload(Telegram-UploadFragment) successfully！！！")
-		}
+		logger.Info.Println(userInfo + "DownloadStickerSetQuery-upload(Telegram-UploadFragment) successfully！！！")
 
 		uploadTask.Clean()
 	} else {

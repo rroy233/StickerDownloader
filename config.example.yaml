@@ -5,7 +5,6 @@ general:
   download_worker_num: 3
   admin_uid: 0
   user_daily_limit: 10
-  use_ext_file_host: false
   process_wait_queue_max_size: 50
 
 cache:

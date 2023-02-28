@@ -16,7 +16,6 @@ type Config struct {
 		DownloadWorkerNum       int    `yaml:"download_worker_num"`
 		AdminUID                int64  `yaml:"admin_uid"`
 		UserDailyLimit          int    `yaml:"user_daily_limit"`
-		UseExtFileHost          bool   `yaml:"use_ext_file_host"`
 		ProcessWaitQueueMaxSize int    `yaml:"process_wait_queue_max_size"`
 	} `yaml:"general"`
 	Cache struct {
