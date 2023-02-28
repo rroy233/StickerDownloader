@@ -270,7 +270,11 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 					continue
 				}
 
-				outFilePath := fmt.Sprintf("%s/%s.gif", task.folderName, sticker.FileUniqueID)
+				fileExt := "gif"
+				if utils.GetFileExtName(tempFilePath) == "webp" {
+					fileExt = "png"
+				}
+				outFilePath := fmt.Sprintf("%s/%s.%s", task.folderName, sticker.FileUniqueID, fileExt)
 				err = utils.ConvertToGif(ctx, tempFilePath, outFilePath)
 				utils.RemoveFile(tempFilePath)
 				if err != nil {

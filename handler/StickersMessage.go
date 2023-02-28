@@ -62,7 +62,11 @@ func StickerMessage(update tgbotapi.Update) {
 			return
 		}
 
-		outPath = fmt.Sprintf("./storage/tmp/convert_%s.gif", utils.RandString())
+		fileExt := "gif"
+		if utils.GetFileExtName(tempFilePath) == "webp" {
+			fileExt = "png"
+		}
+		outPath = fmt.Sprintf("./storage/tmp/convert_%s.%s", utils.RandString(), fileExt)
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		err = utils.ConvertToGif(ctx, tempFilePath, outPath)
 		cancel()
