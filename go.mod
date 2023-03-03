@@ -1,4 +1,4 @@
-module github.com/rroy233/tg-stickers-dl
+module github.com/rroy233/StickerDownloader
 
 go 1.19
 

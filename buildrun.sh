@@ -11,7 +11,7 @@ check_running(){
         fi
 }
 
-NAME="tg-stickers-dl"
+NAME="StickerDownloader"
 
 echo "正在编译"
 rm -f $NAME

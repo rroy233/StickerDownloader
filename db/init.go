@@ -4,9 +4,9 @@ import (
 	"context"
 	"crypto/tls"
 	"github.com/go-redis/redis/v8"
+	"github.com/rroy233/StickerDownloader/config"
+	"github.com/rroy233/StickerDownloader/languages"
 	"github.com/rroy233/logger"
-	"github.com/rroy233/tg-stickers-dl/config"
-	"github.com/rroy233/tg-stickers-dl/languages"
 )
 
 // var db *sqlx.DB

@@ -13,7 +13,7 @@
     "uploaded_third_party": "Success!!\nSticker Name:%s\nSize:%s\nDownload:%s\n",
     "uploaded_telegram": "Success!!\nSticker Name:%s\nSize:%dMB\n",
     "get_limit_command": "Your remaining usage times are: %d",
-    "start_command": "Welcome！\n\nPlease send sticker to Bot and it will help you convert into GIF file!!!\nYou can also forward GIF to Bot, and Bot will send it back to you as a file for saving.\nrepo:https://github.com/rroy233/tg-stickers-dl\n\nSend /help for help",
+    "start_command": "Welcome！\n\nPlease send sticker to Bot and it will help you convert into GIF file!!!\nYou can also forward GIF to Bot, and Bot will send it back to you as a file for saving.\nrepo:https://github.com/rroy233/StickerDownloader\n\nSend /help for help",
     "help_command": "Usage:\n\nPlease send sticker to Bot and it will help you convert into gif file!!!\nYou are allowed to use %d times per 24 hour currently\n\nCommand List:\n /help - Help\n /getlimit - Get remaining usage times",
     "convert_completed": "Convert completed！",
     "converted_waiting_upload": "Convert completed(%d succeeded / %d failed ). Uploading file...",

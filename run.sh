@@ -11,7 +11,7 @@ check_running(){
         fi
 }
 
-NAME="tg-stickers-dl"
+NAME="StickerDownloader"
 
 if check_running; then
         echo -e "$NAME (PID ${PID}) 正在运行，已结束进程。"

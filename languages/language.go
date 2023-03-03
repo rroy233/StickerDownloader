@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/rroy233/StickerDownloader/config"
 	"github.com/rroy233/logger"
-	"github.com/rroy233/tg-stickers-dl/config"
 	"os"
 	"strings"
 )

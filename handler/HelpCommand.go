@@ -3,9 +3,9 @@ package handler
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/rroy233/tg-stickers-dl/config"
-	"github.com/rroy233/tg-stickers-dl/languages"
-	"github.com/rroy233/tg-stickers-dl/utils"
+	"github.com/rroy233/StickerDownloader/config"
+	"github.com/rroy233/StickerDownloader/languages"
+	"github.com/rroy233/StickerDownloader/utils"
 )
 
 func HelpCommand(update tgbotapi.Update) {

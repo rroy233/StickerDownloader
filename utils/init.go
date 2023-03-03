@@ -2,8 +2,8 @@ package utils
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/rroy233/StickerDownloader/languages"
 	"github.com/rroy233/logger"
-	"github.com/rroy233/tg-stickers-dl/languages"
 	"go.uber.org/ratelimit"
 	"os"
 	"time"

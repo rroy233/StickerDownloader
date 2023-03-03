@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/rroy233/tg-stickers-dl/config"
+	"github.com/rroy233/StickerDownloader/config"
 	"strconv"
 	"time"
 )
