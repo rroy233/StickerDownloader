@@ -110,9 +110,6 @@ func cacheGetLocalDiskUsage() error {
 
 	sum := int64(0)
 	for _, entry := range entries {
-		if strings.HasSuffix(entry.Name(), ".gif") == false {
-			continue
-		}
 		info, _ := entry.Info()
 		sum += info.Size()
 	}
@@ -157,7 +154,7 @@ func FindStickerCache(uniqueID string) (string, error) {
 	}
 
 	//复制一份到tmp
-	newFilePath := fmt.Sprintf("./storage/tmp/convert_%s.gif", utils.RandString())
+	newFilePath := fmt.Sprintf("./storage/tmp/convert_%s.%s", utils.RandString(), item.FileExt)
 	err = utils.CopyFile(item.SavePath, newFilePath)
 	if err != nil {
 		return "", err
@@ -210,7 +207,8 @@ func CacheSticker(sticker tgbotapi.Sticker, convertedFilePath string) {
 	item := new(stickerItem)
 	item.Info = sticker
 	item.SaveTimeStamp = time.Now().Unix()
-	item.SavePath = fmt.Sprintf("%s/%d_%s.gif", cacheDir, item.SaveTimeStamp, utils.MD5(sticker.FileUniqueID))
+	item.FileExt = utils.GetFileExtName(convertedFilePath)
+	item.SavePath = fmt.Sprintf("%s/%d_%s.%s", cacheDir, item.SaveTimeStamp, utils.MD5(sticker.FileUniqueID), item.FileExt)
 
 	stat, _ := os.Stat(convertedFilePath)
 	item.Size = stat.Size()
@@ -270,12 +268,12 @@ func cacheDoClean() {
 			logger.Error.Println(loggerPrefix+"Failed to parse cache:", err)
 			continue
 		}
-		checkMap[utils.MD5(item.Info.FileUniqueID)+".gif"]++
+		checkMap[utils.MD5(item.Info.FileUniqueID)+"."+item.FileExt]++
 
 		//查看本地文件是否存在，若不存在，则删除redis对应记录
-		if utils.IsExist(fmt.Sprintf("%s/%d_%s.gif", cacheDir, item.SaveTimeStamp, utils.MD5(item.Info.FileUniqueID))) == true {
+		if utils.IsExist(fmt.Sprintf("%s/%d_%s.%s", cacheDir, item.SaveTimeStamp, utils.MD5(item.Info.FileUniqueID), item.FileExt)) == true {
 			//存在
-			itemMapByFilename[fmt.Sprintf("%d_%s.gif", item.SaveTimeStamp, utils.MD5(item.Info.FileUniqueID))] = item
+			itemMapByFilename[fmt.Sprintf("%d_%s.%s", item.SaveTimeStamp, utils.MD5(item.Info.FileUniqueID), item.FileExt)] = item
 		} else {
 			//不存在
 			rdb.Del(ctx, key)

@@ -9,6 +9,7 @@ type stickerItem struct {
 	Info          tgbotapi.Sticker `json:"info"`
 	SavePath      string           `json:"save_path"`
 	SaveTimeStamp int64            `json:"save_time_stamp"`
+	FileExt       string           `json:"file_ext"`
 	MD5           string           `json:"md5"`
 	Size          int64            `json:"size"`
 }
