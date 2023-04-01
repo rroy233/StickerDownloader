@@ -261,11 +261,19 @@ func cacheDoClean() {
 	checkMap := make(map[string]int, len(keys))
 	//本地文件名到stickerItem的映射
 	itemMapByFilename := make(map[string]*stickerItem)
+	val := ""
+	var err error
+	var item *stickerItem
 	for _, key := range keys {
-		item := new(stickerItem)
-		err := json.Unmarshal([]byte(rdb.Get(ctx, key).Val()), item)
+		item = new(stickerItem)
+		val = rdb.Get(ctx, key).Val()
+		if val == "" {
+			continue
+		}
+
+		err = json.Unmarshal([]byte(val), item)
 		if err != nil {
-			logger.Error.Println(loggerPrefix+"Failed to parse cache:", err)
+			logger.Error.Println(loggerPrefix+"Failed to parse cache:", err, key, val)
 			continue
 		}
 		checkMap[utils.MD5(item.Info.FileUniqueID)+"."+item.FileExt]++
