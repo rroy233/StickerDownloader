@@ -6,6 +6,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/StickerDownloader/config"
+	"github.com/rroy233/StickerDownloader/statistics"
 	"github.com/rroy233/StickerDownloader/utils"
 	"github.com/rroy233/logger"
 	"os"
@@ -25,7 +26,6 @@ var (
 	CacheErrorNotExist     = errors.New("CacheErrorNotExist")
 	CacheErrorVerifyFailed = errors.New("CacheErrorVerifyFailed")
 )
-
 var cacheLocalDiskUsage int64
 
 func initCache() {
@@ -238,6 +238,8 @@ func CacheSticker(sticker tgbotapi.Sticker, convertedFilePath string) {
 	}
 
 	cacheLocalDiskUsage += item.Size
+	//记录statistic(+)
+	statistics.Statistics.Record("StorageChange", int32(item.Size))
 	return
 }
 
@@ -306,6 +308,11 @@ func cacheDoClean() {
 		if checkMap[strings.Split(entry.Name(), "_")[1]] == 0 {
 			utils.RemoveFile(fmt.Sprintf("%s/%s", cacheDir, entry.Name()))
 			itemMapByFilename[entry.Name()] = nil
+			//读取文件大小，记录statistic(-)
+			info, err := entry.Info()
+			if err == nil {
+				statistics.Statistics.Record("StorageChange", -1*int32(info.Size()))
+			}
 		}
 	}
 
@@ -325,6 +332,8 @@ func cacheDoClean() {
 				utils.RemoveFile(item.SavePath)
 				rdb.Del(ctx, fmt.Sprintf("%s:Sticker_Cache:%s", ServicePrefix, utils.MD5Short(item.Info.FileUniqueID)))
 				cacheLocalDiskUsage -= item.Size
+				//记录statistic(-)
+				statistics.Statistics.Record("StorageChange", -1*int32(item.Size))
 			}
 		}
 	}

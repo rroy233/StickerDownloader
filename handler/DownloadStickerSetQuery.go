@@ -7,6 +7,7 @@ import (
 	"github.com/rroy233/StickerDownloader/config"
 	"github.com/rroy233/StickerDownloader/db"
 	"github.com/rroy233/StickerDownloader/languages"
+	"github.com/rroy233/StickerDownloader/statistics"
 	"github.com/rroy233/StickerDownloader/utils"
 	"github.com/rroy233/logger"
 	"os"
@@ -217,6 +218,7 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 			cacheTmpFile, err := db.FindStickerCache(sticker.FileUniqueID)
 			if err == nil {
 				//命中缓存
+				statistics.Statistics.Record("CacheHit", 1)
 				err := utils.CopyFile(cacheTmpFile, fmt.Sprintf("%s/%s.%s", task.folderName, sticker.FileUniqueID, utils.GetFileExtName(cacheTmpFile)))
 				utils.RemoveFile(cacheTmpFile)
 				if err != nil {
@@ -226,6 +228,7 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 				}
 			} else {
 				//未命中缓存
+				statistics.Statistics.Record("CacheMiss", 1)
 				remoteFile, err := utils.BotGetFile(tgbotapi.FileConfig{
 					FileID: sticker.FileID,
 				})

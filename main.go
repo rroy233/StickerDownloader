@@ -8,6 +8,7 @@ import (
 	"github.com/rroy233/StickerDownloader/handler"
 	"github.com/rroy233/StickerDownloader/languages"
 	"github.com/rroy233/StickerDownloader/router"
+	"github.com/rroy233/StickerDownloader/statistics"
 	"github.com/rroy233/StickerDownloader/utils"
 	"github.com/rroy233/logger"
 	"os"
@@ -47,10 +48,11 @@ func main() {
 	}
 
 	//init
+	config.Init()
+	rdb := db.Init()
+	statistics.InitStatistic(rdb)
 	utils.Init(bot)
 	handler.Init(bot)
-	config.Init()
-	db.Init()
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
@@ -78,6 +80,9 @@ func Stop() {
 
 	//clean temp files
 	utils.CleanTmp()
+
+	//store statistics data into redis
+	statistics.Statistics.Save()
 
 	//close db
 	db.Close()

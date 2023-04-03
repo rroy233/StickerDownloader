@@ -15,7 +15,7 @@ var ctx = context.Background()
 
 const ServicePrefix = "StickerDl"
 
-func Init() {
+func Init() *redis.Client {
 	var tlsConfig *tls.Config
 	if config.Get().Redis.TLS == true {
 		tlsConfig = &tls.Config{
@@ -31,7 +31,7 @@ func Init() {
 	err := rdb.Ping(context.Background()).Err()
 	if err != nil {
 		logger.FATAL.Fatalln(languages.Get(nil).System.DbRedisStartFailed, err)
-		return
+		return rdb
 	}
 	logger.Info.Println(languages.Get(nil).System.DbRedisConnected)
 
@@ -41,7 +41,7 @@ func Init() {
 	//cache
 	initCache()
 
-	return
+	return rdb
 }
 
 func Close() {

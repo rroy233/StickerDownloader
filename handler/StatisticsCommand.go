@@ -5,15 +5,23 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/StickerDownloader/config"
 	"github.com/rroy233/StickerDownloader/languages"
+	"github.com/rroy233/StickerDownloader/statistics"
 	"github.com/rroy233/StickerDownloader/utils"
+	"time"
 )
 
-func AdminCommand(update tgbotapi.Update) {
+func StatisticsCommand(update tgbotapi.Update) {
 	if update.Message.Chat.ID != config.Get().General.AdminUID {
 		utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrNoPermission)
 		return
 	}
 
-	utils.SendPlainText(&update, fmt.Sprintf("Admin Command\n\nReload Config /reload\nClear Cache /clearcache\nWeek Statistics /statistics"))
+	data := statistics.Statistics.Printf()
+	text := fmt.Sprintf("Statistics\nStart: %s\nEnd: %s\n%s",
+		statistics.Statistics.StartTime.Format("2006-01-02 15:04:05"),
+		time.Now().Format("2006-01-02 15:04:05"),
+		data)
+
+	utils.SendPlainText(&update, text, utils.EntityCode(text, data))
 	return
 }

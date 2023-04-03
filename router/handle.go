@@ -7,6 +7,7 @@ import (
 	"github.com/rroy233/StickerDownloader/db"
 	"github.com/rroy233/StickerDownloader/handler"
 	"github.com/rroy233/StickerDownloader/languages"
+	"github.com/rroy233/StickerDownloader/statistics"
 	"github.com/rroy233/StickerDownloader/utils"
 	"github.com/rroy233/logger"
 	"strings"
@@ -19,6 +20,10 @@ const (
 )
 
 func Handle(update tgbotapi.Update) {
+	//statistics
+	statistics.Statistics.Record("MsgHandleTotalTimes", 1)
+	statistics.Statistics.RecordUser(utils.MD5Short(fmt.Sprintf("%d", utils.GetUID(&update))))
+
 	logger.Info.Println(utils.LogUserInfo(&update) + utils.JsonEncode(update))
 	//command
 	if update.Message != nil && update.Message.IsCommand() {
@@ -38,13 +43,19 @@ func Handle(update tgbotapi.Update) {
 			handler.ReloadConfigCommand(update)
 		case "clearcache": //admin
 			handler.ClearCacheCommand(update)
+		case "statistics":
+			handler.StatisticsCommand(update)
+		default:
+			return
 		}
+		statistics.Statistics.RecordCommand(update.Message.Command())
 	}
 
 	//add stickers url message
 	// e.g. https://t.me/addstickers/xxx
 	if update.Message != nil && strings.HasPrefix(update.Message.Text, "https://t.me/addstickers/") == true {
 		handler.AddStickerUrlMessage(update)
+		statistics.Statistics.Record("MsgStickerUrl", 1)
 	}
 
 	//Sticker message
@@ -59,6 +70,7 @@ func Handle(update tgbotapi.Update) {
 			return
 		}
 		handler.StickerMessage(update)
+		statistics.Statistics.Record("MsgStickerNum", 1)
 	}
 
 	//Animation message
@@ -73,6 +85,7 @@ func Handle(update tgbotapi.Update) {
 			return
 		}
 		handler.AnimationMessage(update)
+		statistics.Statistics.Record("MsgAnimationNum", 1)
 	}
 
 	//inline query
@@ -90,6 +103,7 @@ func Handle(update tgbotapi.Update) {
 				return
 			}
 			handler.DownloadStickerSetQuery(update)
+			statistics.Statistics.Record("MsgStickerSet", 1)
 		case strings.HasPrefix(data, handler.QuitQueueCallbackQueryPrefix) == true:
 			handler.QuitQueueQuery(update)
 		}

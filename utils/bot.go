@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/rroy233/StickerDownloader/statistics"
 	"github.com/rroy233/logger"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 	"unicode/utf16"
@@ -79,6 +81,13 @@ func SendFile(update *tgbotapi.Update, filePath string) error {
 	if err != nil {
 		logger.Error.Println("failed to send file：", err)
 	}
+
+	//记录statistic
+	info, err := os.Stat(filePath)
+	if err == nil {
+		statistics.Statistics.Record("NetworkUpload", int32(info.Size()))
+	}
+
 	return err
 }
 
@@ -175,6 +184,9 @@ func DownloadFile(fileUrl string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	//记录statistic
+	statistics.Statistics.Record("NetworkDownload", int32(len(data)))
 
 	return fileName, nil
 }

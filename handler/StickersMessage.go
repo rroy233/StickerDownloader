@@ -7,6 +7,7 @@ import (
 	"github.com/rroy233/StickerDownloader/config"
 	"github.com/rroy233/StickerDownloader/db"
 	"github.com/rroy233/StickerDownloader/languages"
+	"github.com/rroy233/StickerDownloader/statistics"
 	"github.com/rroy233/StickerDownloader/utils"
 	"github.com/rroy233/logger"
 	"time"
@@ -44,9 +45,11 @@ func StickerMessage(update tgbotapi.Update) {
 	outPath := ""
 	if err == nil {
 		//缓存存在
+		statistics.Statistics.Record("CacheHit", 1)
 		outPath = cacheFile
 	} else {
 		//缓存不存在
+		statistics.Statistics.Record("CacheMiss", 1)
 		tempFilePath, err := utils.DownloadFile(remoteFile.Link(config.Get().General.BotToken))
 		if err != nil {
 			logger.Error.Println(userInfo+"failed to download file:", err)

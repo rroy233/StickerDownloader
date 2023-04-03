@@ -16,7 +16,6 @@ require (
 	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/jmoiron/sqlx v1.3.5 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	golang.org/x/sys v0.4.0 // indirect
 )
