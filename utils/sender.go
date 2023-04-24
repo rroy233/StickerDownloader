@@ -3,6 +3,7 @@ package utils
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/logger"
+	"time"
 )
 
 var msgQueue chan tgbotapi.Chattable
@@ -26,7 +27,9 @@ func sender() {
 		resp, err := bot.Request(msg)
 		if err != nil {
 			logger.Error.Printf("%s[sender][%s]%s", loggerPrefix, err.Error(), JsonEncode(resp))
-			if resp.ErrorCode == 429 {
+			if resp != nil && resp.ErrorCode == 429 {
+				//Too Many Requests error
+				time.Sleep(10 * time.Second)
 				msgQueue <- msg
 			}
 		}
