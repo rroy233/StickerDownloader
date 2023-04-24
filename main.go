@@ -13,6 +13,7 @@ import (
 	"github.com/rroy233/logger"
 	"os"
 	"os/signal"
+	"time"
 )
 
 var bot *tgbotapi.BotAPI
@@ -48,6 +49,7 @@ func main() {
 	}
 
 	//init
+	time.Local = time.FixedZone("CST", 8*3600)
 	config.Init()
 	rdb := db.Init()
 	statistics.InitStatistic(rdb)
