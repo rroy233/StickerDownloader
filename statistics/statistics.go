@@ -1,7 +1,6 @@
 package statistics
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -213,13 +212,22 @@ func (s *statistics) PrintToLog() {
 func (s *statistics) Printf() string {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	data, _ := json.MarshalIndent(s, "", "  ")
-	//change B to MB
-	data = bytes.Replace(data, []byte(fmt.Sprintf("%d", s.NetworkUpload)), []byte(fmt.Sprintf("%d(MB)", s.NetworkUpload>>20)), -1)
-	data = bytes.Replace(data, []byte(fmt.Sprintf("%d", s.NetworkDownload)), []byte(fmt.Sprintf("%d(MB)", s.NetworkDownload>>20)), -1)
-	data = bytes.Replace(data, []byte(fmt.Sprintf("%d", s.StorageChange)), []byte(fmt.Sprintf("%d(MB)", s.StorageChange>>20)), -1)
 
-	return string(data)
+	text := "Weekly Active Users [%d]\nHandled Requests [%d]\nHandled Messages:\n\tSticker [%d]\n\tAnimation [%d]\n\tSticker Url [%d]\n\tSticker Set [%d]\nStorage Changed [%d MB]\nCache:\n\tHit [%d]\n\tMiss [%d]\nNetwork:\n\tUploaded [%d MB]\n\tDownloaded [%d MB]\n"
+
+	return fmt.Sprintf(text,
+		len(s.UserTotalNum),
+		s.MsgHandleTotalTimes,
+		s.MsgStickerNum,
+		s.MsgAnimationNum,
+		s.MsgStickerUrl,
+		s.MsgStickerSet,
+		s.StorageChange>>20,
+		s.CacheHit,
+		s.CacheMiss,
+		s.NetworkUpload>>20,
+		s.NetworkDownload>>20,
+	)
 }
 
 func storeStatistic(data []byte) error {
