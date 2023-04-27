@@ -70,13 +70,44 @@ getlimit - 获取当日使用限额
 admin - 查看管理员指令
 ```
 
-#### 创建配置文件
+#### 配置
 
 复制`config.example.yaml`为`config.yaml`
 
+```yaml
+general:
+  bot_token: "xxx" # 从BotFather获得
+  language: "zh-hans" # 默认语言(对应/languages文件夹中的文件名)
+  worker_num: 2 # 消息处理的线程数
+  download_worker_num: 3 # 下载、文件转码工作线程数
+  admin_uid: 0 # 管理员UID
+  user_daily_limit: 10 # 每日使用次数限制
+  process_wait_queue_max_size: 50 # 等待队列最大长度
+
+cache:
+  enabled: false # 是否启用文件缓存(需要使用Redis)
+  storage_dir: "./storage/cache" # 文件缓存存放位置
+  max_disk_usage: 1024 # 最大磁盘占用(MB)
+  cache_expire: 86400 # 文件缓存有效期(s)
+  cache_clean_interval: 1800 # 过期文件检查周期(s)
+
+logger:
+  report: false # 是否启用远程日志上报(需要自行设计接收端，参考https://github.com/rroy233/logger)
+  report_url: "" # 远程日志上报url(POST)
+  report_query_key: "" # 远程日志上报query参数
+
+redis:
+  server: "localhost" # redis服务器地址
+  port: "6379" # redis服务器端口
+  tls: false # redis是否启用tls
+  password: "" # redis密码
+  db: 0 # redis数据库编号
+```
+
+
 #### 下载ffmpeg
 
-下载对应平台的[ffmpeg](https://ffmpeg.org/)的可执行文件，命名格式为`ffmpeg-{GOOS}-{GOARCH}`，复制到`./ffmpeg`文件夹
+下载对应平台的[ffmpeg](https://ffmpeg.org/)的可执行文件，命名格式为`ffmpeg-{GOOS}-{GOARCH}`，复制到`./ffmpeg`文件夹。
 
 #### 运行程序
 

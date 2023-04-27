@@ -23,8 +23,8 @@
 
 ### Feature
 
-* Send sticker or sticker link to Bot, so it will help you convert into GIF file.
-* Forward GIF to Bot, and Bot will send it back to you as a file for saving.
+* Send stickers or sticker links to the bot, and it will convert them into easily savable GIF files for you.
+* Forward GIFs to the bot, and it will send them back to you in file form for easy saving.
 * Download single sticker.
 * Download whole sticker set.
 
@@ -70,9 +70,39 @@ getlimit - Get remaining usage times
 admin - Get admin commands
 ```
 
-#### Create Config File
+#### Configuration
 
 copy `config.example.yaml` to `config.yaml`.
+
+```yaml
+general:
+  bot_token: "xxx" # Obtained from BotFather
+  language: "zh-hans" # Default language (corresponding to the filename in the /languages folder)
+  worker_num: 2 # Number of threads for message processing
+  download_worker_num: 3 # Number of threads for downloading and file transcoding
+  admin_uid: 0 # Admin UID
+  user_daily_limit: 10 # Daily usage limit
+  process_wait_queue_max_size: 50 # Maximum length of the wait queue
+
+cache:
+  enabled: false # Whether to enable file caching (requires Redis)
+  storage_dir: "./storage/cache" # Location for storing file cache
+  max_disk_usage: 1024 # Maximum disk usage (MB)
+  cache_expire: 86400 # File cache validity period (s)
+  cache_clean_interval: 1800 # Expiration file check interval (s)
+
+logger:
+  report: false # Whether to enable remote log reporting (requires a custom receiver, see https://github.com/rroy233/logger)
+  report_url: "" # Remote log reporting URL (POST)
+  report_query_key: "" # Query parameter for remote log reporting
+
+redis:
+  server: "localhost" # Redis server address
+  port: "6379" # Redis server port
+  tls: false # Whether to enable TLS for Redis
+  password: "" # Redis password
+  db: 0 # Redis database number
+```
 
 #### Download ffmpeg
 
