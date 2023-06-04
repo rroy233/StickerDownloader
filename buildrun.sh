@@ -19,7 +19,7 @@ go build -o $NAME
 echo "即将开始运行"
 if check_running; then
         echo -e "$NAME (PID ${PID}) 正在运行，已结束进程。"
-        kill -9 "${PID}"
+        kill "${PID}"
 fi
 ulimit -n 51200 >/dev/null 2>&1
 nohup ./$NAME > ./sys.log 2>&1 &

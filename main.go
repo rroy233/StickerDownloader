@@ -13,6 +13,7 @@ import (
 	"github.com/rroy233/logger"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -68,7 +69,7 @@ func main() {
 	logger.Info.Println(languages.Get(nil).System.Running)
 
 	sigCh := make(chan os.Signal, 1)
-	signal.Notify(sigCh, os.Interrupt, os.Kill)
+	signal.Notify(sigCh, os.Interrupt, syscall.SIGKILL, syscall.SIGTERM)
 	<-sigCh
 
 	Stop()
