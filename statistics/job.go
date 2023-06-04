@@ -11,3 +11,10 @@ func autoReset() {
 		Statistics.Reset()
 	}
 }
+
+func autoSave() {
+	for {
+		time.Sleep(3 * time.Minute)
+		Statistics.Save()
+	}
+}

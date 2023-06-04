@@ -36,7 +36,7 @@ type statistics struct {
 
 	//存储
 	//存储变化(B)
-	StorageChange int32 `json:"storage_change"`
+	StorageChange int64 `json:"storage_change"`
 
 	//缓存
 	//击中缓存次数
@@ -45,8 +45,8 @@ type statistics struct {
 
 	//网络
 	//上传(B)
-	NetworkUpload   int32 `json:"network_upload"`
-	NetworkDownload int32 `json:"network_download"`
+	NetworkUpload   int64 `json:"network_upload"`
+	NetworkDownload int64 `json:"network_download"`
 
 	//自身属性
 	lock      sync.Mutex
@@ -88,6 +88,7 @@ func InitStatistic(db *redis.Client) {
 
 	//auto job
 	go autoReset()
+	go autoSave()
 
 	return
 }
@@ -124,34 +125,44 @@ func (s *statistics) RecordUser(uidMd5Short string) {
 func (s *statistics) Record(field string, delta int32) {
 	loggerPrefix := "[statistics-Record]"
 
-	var dest *int32
+	var dest32 *int32
 	switch field {
 	case "MsgHandleTotalTimes":
-		dest = &s.MsgHandleTotalTimes
+		dest32 = &s.MsgHandleTotalTimes
 	case "MsgStickerNum":
-		dest = &s.MsgStickerNum
+		dest32 = &s.MsgStickerNum
 	case "MsgAnimationNum":
-		dest = &s.MsgAnimationNum
+		dest32 = &s.MsgAnimationNum
 	case "MsgStickerSet":
-		dest = &s.MsgStickerSet
+		dest32 = &s.MsgStickerSet
 	case "MsgStickerUrl":
-		dest = &s.MsgStickerUrl
-	case "StorageChange":
-		dest = &s.StorageChange
+		dest32 = &s.MsgStickerUrl
 	case "CacheHit":
-		dest = &s.CacheHit
+		dest32 = &s.CacheHit
 	case "CacheMiss":
-		dest = &s.CacheMiss
+		dest32 = &s.CacheMiss
+	}
+	if dest32 != nil {
+		atomic.AddInt32(dest32, delta)
+		return
+	}
+
+	var dest64 *int64
+	switch field {
 	case "NetworkUpload":
-		dest = &s.NetworkUpload
+		dest64 = &s.NetworkUpload
 	case "NetworkDownload":
-		dest = &s.NetworkDownload
+		dest64 = &s.NetworkDownload
+	case "StorageChange":
+		dest64 = &s.StorageChange
 	default:
 		logger.Error.Println(loggerPrefix+"Failed to find field:", field)
 		return
 	}
-
-	atomic.AddInt32(dest, delta)
+	if dest64 != nil {
+		atomic.AddInt64(dest64, int64(delta))
+		return
+	}
 }
 
 func (s *statistics) RecordCommand(commandName string) {
