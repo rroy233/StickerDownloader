@@ -12,7 +12,7 @@ import (
 type logWriter struct{}
 
 func ConvertToGif(ctx context.Context, inFile, outFile string) error {
-	cmd := exec.CommandContext(ctx, "./ffmpeg/"+getFfmpeg(), strings.Split(fmt.Sprintf("-y -i %s -vf scale=-1:-1 -r 20 %s", inFile, outFile), " ")...)
+	cmd := exec.CommandContext(ctx, getFFmpeg(), strings.Split(fmt.Sprintf("-y -i %s -vf scale=-1:-1 -r 20 %s", inFile, outFile), " ")...)
 	cmd.Stdout = logWriter{}
 
 	err := cmd.Run()
@@ -28,7 +28,17 @@ func (w logWriter) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func getFfmpeg() string {
+func getFFmpeg() string {
+	if isSystemFFmpegExist == true {
+		if runtime.GOOS == "windows" {
+			return "ffmpeg.exe"
+		}
+		return "ffmpeg"
+	}
+	return "./ffmpeg/" + getFfmpegFilename()
+}
+
+func getFfmpegFilename() string {
 	exeSuffix := ""
 	if runtime.GOOS == "windows" {
 		exeSuffix = ".exe"

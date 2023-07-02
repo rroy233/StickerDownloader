@@ -106,7 +106,9 @@ redis:
 
 #### Download ffmpeg
 
-download ffmpeg from [official website](https://ffmpeg.org/),  rename it to `ffmpeg-{GOOS}-{GOARCH}`, and put it into `./ffmpeg` folder.
+If ffmpeg is already installed, you can skip this step.
+
+Download ffmpeg from [official website](https://ffmpeg.org/),  rename it to `ffmpeg-{GOOS}-{GOARCH}`, and put it into `./ffmpeg` folder.
 
 #### Run
 

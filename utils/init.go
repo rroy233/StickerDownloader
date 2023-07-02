@@ -6,12 +6,14 @@ import (
 	"github.com/rroy233/logger"
 	"go.uber.org/ratelimit"
 	"os"
+	"strings"
 	"time"
 )
 
 var bot *tgbotapi.BotAPI
 var loggerPrefix = "[utils]"
 var Limiter ratelimit.Limiter
+var isSystemFFmpegExist bool
 
 func Init(api *tgbotapi.BotAPI) {
 	//初始化rate Limiter
@@ -32,8 +34,19 @@ func Init(api *tgbotapi.BotAPI) {
 	if IsExist("./ffmpeg") == false {
 		_ = os.Mkdir("./ffmpeg", 0755)
 	}
-	if IsExist("./ffmpeg/"+getFfmpeg()) == false {
-		logger.FATAL.Printf(languages.Get(nil).System.FfmpegNotExist, getFfmpeg())
+	checkSystemFFmpeg()
+	if isSystemFFmpegExist == false && IsExist("./ffmpeg/"+getFfmpegFilename()) == false {
+		logger.FATAL.Printf(languages.Get(nil).System.FfmpegNotExist, getFfmpegFilename())
 	}
 	return
+}
+
+func checkSystemFFmpeg() {
+	paths := strings.Split(os.Getenv("PATH"), ":")
+	for _, path := range paths {
+		if IsExist(path+"/ffmpeg") == true || IsExist(path+"/ffmpeg.exe") == true {
+			isSystemFFmpegExist = true
+			break
+		}
+	}
 }
