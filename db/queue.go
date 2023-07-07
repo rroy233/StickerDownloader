@@ -55,8 +55,7 @@ func initQueue(maxSize int) {
 	}
 
 	//队列任务超时时间
-	//队列最大长度*单个任务处理的最长时间(下载转码整套表情包的超时时间)
-	QueueTimeout = int64(maxSize * 60)
+	QueueTimeout = 30
 
 	queue = new(QStruct)
 	queue.size = 0
