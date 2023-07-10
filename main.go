@@ -95,6 +95,7 @@ func worker(stopCtx context.Context, uc tgbotapi.UpdatesChannel, cancelCh chan i
 	for {
 		select {
 		case update := <-uc:
+			utils.Limiter.Take()
 			go router.Handle(update)
 		case <-stopCtx.Done():
 			cancelCh <- 1
