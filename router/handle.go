@@ -25,6 +25,22 @@ func Handle(update tgbotapi.Update) {
 	statistics.Statistics.RecordUser(utils.MD5Short(fmt.Sprintf("%d", utils.GetUID(&update))))
 
 	logger.Info.Println(utils.LogUserInfo(&update) + utils.JsonEncode(update))
+
+	//auto leave channel
+	if update.ChannelPost != nil || update.EditedChannelPost != nil {
+		handler.AutoLeave(update)
+		return
+	}
+	//auto leave group
+	if update.Message != nil && update.Message.LeftChatMember != nil && (update.Message.Chat.Type == "group" || update.Message.Chat.Type == "supergroup") {
+		handler.AutoLeave(update)
+		return
+	}
+	if update.MyChatMember != nil && (update.MyChatMember.Chat.Type == "channel" || update.MyChatMember.Chat.Type == "group" || update.MyChatMember.Chat.Type == "supergroup") {
+		handler.AutoLeave(update)
+		return
+	}
+
 	//command
 	if update.Message != nil && update.Message.IsCommand() {
 		logger.Info.Println(update.Message.Command())

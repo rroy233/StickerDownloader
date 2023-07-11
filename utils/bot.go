@@ -143,6 +143,10 @@ func BotGetFile(config tgbotapi.FileConfig) (tgbotapi.File, error) {
 	return bot.GetFile(config)
 }
 
+func BotGetSelf() tgbotapi.User {
+	return bot.Self
+}
+
 func BotGetStickerSet(config tgbotapi.GetStickerSetConfig) (tgbotapi.StickerSet, error) {
 	Limiter.Take()
 	return bot.GetStickerSet(config)
