@@ -52,7 +52,12 @@ func AnimationMessage(update tgbotapi.Update) {
 		return
 	}
 
+	//path to save converted file
 	outPath := fmt.Sprintf("./storage/tmp/convert_%d.gif", time.Now().UnixMicro())
+	defer func() {
+		utils.RemoveFile(outPath)
+	}()
+
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	err = utils.ConvertToGif(ctx, tempFilePath, outPath)
 	cancel()
