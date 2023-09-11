@@ -188,7 +188,11 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 		err = utils.SendFile(&update, zipFilePath)
 		if err != nil {
 			logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to upload:", err)
-			utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrUploadFailed)
+			utils.EditMsgText(
+				update.CallbackQuery.Message.Chat.ID,
+				msg.MessageID,
+				fmt.Sprintf("%s(TelegramAPI:%s)", languages.Get(&update).BotMsg.ErrUploadFailed, err.Error()),
+			)
 			return
 		}
 		text := fmt.Sprintf(languages.Get(&update).BotMsg.UploadedTelegram, stickerSet.Name, fileStat.Size()>>20)

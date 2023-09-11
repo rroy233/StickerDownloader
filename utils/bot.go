@@ -80,6 +80,7 @@ func SendFile(update *tgbotapi.Update, filePath string) error {
 	_, err := bot.SendMediaGroup(msg)
 	if err != nil {
 		logger.Error.Println("failed to send file：", err)
+		return err
 	}
 
 	//记录statistic

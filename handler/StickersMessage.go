@@ -86,7 +86,10 @@ func StickerMessage(update tgbotapi.Update) {
 	err = utils.SendFile(&update, outPath)
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to SendFile:", err)
-		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrSendFileFailed)
+		utils.EditMsgText(update.Message.Chat.ID,
+			msg.MessageID,
+			fmt.Sprintf("%s(TelegramAPI:%s)", languages.Get(&update).BotMsg.ErrSendFileFailed, err.Error()),
+		)
 		return
 	}
 
