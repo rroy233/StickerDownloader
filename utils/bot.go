@@ -80,7 +80,10 @@ func SendFile(update *tgbotapi.Update, filePath string) error {
 	_, err := bot.SendMediaGroup(msg)
 	if err != nil {
 		logger.Error.Println("failed to send file：", err)
-		return err
+		if strings.Contains(err.Error(), "api.telegram.org") == false {
+			return err
+		}
+		return errors.New("network error")
 	}
 
 	//记录statistic
