@@ -7,7 +7,7 @@ import (
 	"github.com/rroy233/StickerDownloader/config"
 	"github.com/rroy233/StickerDownloader/languages"
 	"github.com/rroy233/StickerDownloader/utils"
-	"github.com/rroy233/logger"
+	"gopkg.in/rroy233/logger.v2"
 	"time"
 )
 
@@ -87,6 +87,5 @@ func AnimationMessage(update tgbotapi.Update) {
 		logger.Error.Println(userInfo+"failed to delete msg:", err)
 	}
 
-	utils.RemoveFile(outPath)
 	return
 }

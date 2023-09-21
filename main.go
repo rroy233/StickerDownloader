@@ -10,7 +10,7 @@ import (
 	"github.com/rroy233/StickerDownloader/router"
 	"github.com/rroy233/StickerDownloader/statistics"
 	"github.com/rroy233/StickerDownloader/utils"
-	"github.com/rroy233/logger"
+	"gopkg.in/rroy233/logger.v2"
 	"os"
 	"os/signal"
 	"syscall"
@@ -37,7 +37,6 @@ func main() {
 				RequestUrl: config.Get().Logger.ReportUrl,
 				QueryKey:   config.Get().Logger.ReportQueryKey,
 			},
-			NotUseJson: true,
 		})
 
 	//language

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/StickerDownloader/config"
-	"github.com/rroy233/logger"
+	"gopkg.in/rroy233/logger.v2"
 	"os"
 	"strings"
 )

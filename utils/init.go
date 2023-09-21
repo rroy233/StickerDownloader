@@ -3,8 +3,8 @@ package utils
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/StickerDownloader/languages"
-	"github.com/rroy233/logger"
 	"go.uber.org/ratelimit"
+	"gopkg.in/rroy233/logger.v2"
 	"os"
 	"strings"
 	"time"

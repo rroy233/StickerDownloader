@@ -3,7 +3,7 @@ package utils
 import (
 	"context"
 	"fmt"
-	"github.com/rroy233/logger"
+	"gopkg.in/rroy233/logger.v2"
 	"os/exec"
 	"runtime"
 	"strings"

@@ -6,7 +6,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/rroy233/StickerDownloader/config"
 	"github.com/rroy233/StickerDownloader/languages"
-	"github.com/rroy233/logger"
+	"gopkg.in/rroy233/logger.v2"
 )
 
 // var db *sqlx.DB

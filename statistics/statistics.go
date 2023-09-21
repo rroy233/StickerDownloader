@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-redis/redis/v8"
-	"github.com/rroy233/logger"
+	"gopkg.in/rroy233/logger.v2"
 	"sync"
 	"sync/atomic"
 	"time"

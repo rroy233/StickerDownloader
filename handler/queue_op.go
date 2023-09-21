@@ -6,7 +6,7 @@ import (
 	"github.com/rroy233/StickerDownloader/db"
 	"github.com/rroy233/StickerDownloader/languages"
 	"github.com/rroy233/StickerDownloader/utils"
-	"github.com/rroy233/logger"
+	"gopkg.in/rroy233/logger.v2"
 	"time"
 )
 
