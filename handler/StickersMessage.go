@@ -57,21 +57,32 @@ func StickerMessage(update tgbotapi.Update) {
 
 		logger.Info.Printf("%sGet sticker %s.%s", userInfo, update.Message.Sticker.SetName, update.Message.Sticker.Emoji)
 
-		defer utils.RemoveFile(tempFilePath) //delete temp file
+		//delete temp file
+		defer utils.RemoveFile(tempFilePath)
+
+		//init convert task
+		convertTask := utils.ConvertTask{
+			InputFilePath:  tempFilePath,
+			InputExtension: utils.GetFileExtName(tempFilePath),
+		}
 
 		//check file type
-		if utils.GetFileExtName(tempFilePath) != "webp" && utils.GetFileExtName(tempFilePath) != "webm" {
+		if config.Get().General.SupportTGSFile == false && convertTask.InputExtension == "tgs" {
 			utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrStickerNotSupport)
 			return
 		}
 
+		//generate output file path
 		fileExt := "gif"
-		if utils.GetFileExtName(tempFilePath) == "webp" {
+		if convertTask.InputExtension == "webp" {
 			fileExt = "png"
 		}
 		outPath = fmt.Sprintf("./storage/tmp/convert_%s.%s", utils.RandString(), fileExt)
+		convertTask.OutputFilePath = outPath
+
+		//start to convert
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-		err = utils.ConvertToGif(ctx, tempFilePath, outPath)
+		err = convertTask.Run(ctx)
 		cancel()
 		if err != nil {
 			logger.Error.Println(userInfo+"failed to convert:", err)
@@ -79,7 +90,7 @@ func StickerMessage(update tgbotapi.Update) {
 			return
 		}
 
-		db.CacheSticker(*update.Message.Sticker, outPath)
+		db.CacheSticker(*update.Message.Sticker, convertTask.OutputFilePath)
 	}
 
 	utils.SendAction(update.Message.Chat.ID, utils.ChatActionSendDocument)

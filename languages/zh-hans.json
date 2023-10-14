@@ -4,7 +4,8 @@
 		"stop_running": "已结束运行！",
 		"db_redis_start_failed": "Redis启动失败:",
 		"db_redis_connected": "Redis已连接",
-		"ffmpeg_not_exist": "%s不存在！！请到官网下载可执行文件并重命名放入./ffmpeg文件夹\n"
+		"ffmpeg_not_exist": "%s不存在！！请到官网下载可执行文件并重命名放入./ffmpeg文件夹\n",
+		"rlottie_not_exist": "%s不存在！！检测到您在配置项中开启了对.tgs文件转码的支持，请务必保证rlottie可用。详情查看README\n"
 	},
 	"bot_msg": {
 		"processing": "正在处理...",

@@ -37,22 +37,24 @@ func AddStickerUrlMessage(update tgbotapi.Update) {
 		return
 	}
 
-	//try to download one
-	remoteFile, err := utils.BotGetFile(tgbotapi.FileConfig{
-		FileID: stickerSet.Stickers[0].FileID,
-	})
-	if err != nil {
-		logger.Error.Println(userInfo+"failed to get file:", err)
-	}
-	tempFilePath, err := utils.DownloadFile(remoteFile.Link(config.Get().General.BotToken))
-	if err != nil {
-		logger.Error.Println(userInfo+"failed to download file:", err)
-	}
-	defer utils.RemoveFile(tempFilePath) //delete temp file
-	//check file type
-	if utils.GetFileExtName(tempFilePath) != "webp" && utils.GetFileExtName(tempFilePath) != "webm" {
-		utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrStickerNotSupport)
-		return
+	if config.Get().General.SupportTGSFile == false {
+		//try to download one
+		remoteFile, err := utils.BotGetFile(tgbotapi.FileConfig{
+			FileID: stickerSet.Stickers[0].FileID,
+		})
+		if err != nil {
+			logger.Error.Println(userInfo+"failed to get file:", err)
+		}
+		tempFilePath, err := utils.DownloadFile(remoteFile.Link(config.Get().General.BotToken))
+		if err != nil {
+			logger.Error.Println(userInfo+"failed to download file:", err)
+		}
+		defer utils.RemoveFile(tempFilePath) //delete temp file
+		//check file type
+		if utils.GetFileExtName(tempFilePath) != "webp" && utils.GetFileExtName(tempFilePath) != "webm" {
+			utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrStickerNotSupport)
+			return
+		}
 	}
 
 	StickerMsg, err := utils.BotSend(tgbotapi.NewSticker(update.Message.Chat.ID, tgbotapi.FileID(stickerSet.Stickers[0].FileID)))

@@ -1,5 +1,6 @@
 /log
 /ffmpeg/*
+/lottie2gif/*
 /storage/*
 config.yaml
 /.idea

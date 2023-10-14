@@ -58,8 +58,15 @@ func AnimationMessage(update tgbotapi.Update) {
 		utils.RemoveFile(outPath)
 	}()
 
+	//init convert task
+	convertTask := utils.ConvertTask{
+		InputFilePath:  tempFilePath,
+		InputExtension: "mp4",
+		OutputFilePath: outPath,
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	err = utils.ConvertToGif(ctx, tempFilePath, outPath)
+	err = convertTask.Run(ctx)
 	cancel()
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to convert:", err)

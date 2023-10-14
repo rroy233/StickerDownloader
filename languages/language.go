@@ -17,6 +17,7 @@ type LanguageStruct struct {
 		DbRedisStartFailed string `json:"db_redis_start_failed"`
 		DbRedisConnected   string `json:"db_redis_connected"`
 		FfmpegNotExist     string `json:"ffmpeg_not_exist"`
+		RlottieNotExist    string `json:"rlottie_not_exist"`
 	} `json:"system"`
 	BotMsg struct {
 		Processing              string `json:"processing"`

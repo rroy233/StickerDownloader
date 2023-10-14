@@ -17,6 +17,7 @@ type Config struct {
 		AdminUID                int64  `yaml:"admin_uid"`
 		UserDailyLimit          int    `yaml:"user_daily_limit"`
 		ProcessWaitQueueMaxSize int    `yaml:"process_wait_queue_max_size"`
+		SupportTGSFile          bool   `yaml:"support_tgs_file"`
 	} `yaml:"general"`
 	Cache struct {
 		Enabled            bool   `yaml:"enabled"`

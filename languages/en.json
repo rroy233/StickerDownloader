@@ -4,11 +4,12 @@
     "stop_running": "Program stopped!",
     "db_redis_start_failed": "Failed to start Redis:",
     "db_redis_connected": "Redis connected",
-    "ffmpeg_not_exist": "%s not exist!! Please put executable into ./ffmpeg folder\n"
+    "ffmpeg_not_exist": "%s not exist!! Please put executable into ./ffmpeg folder\n",
+    "rlottie_not_exist": "%s does not exist!! It has been detected that you have enabled support for .tgs file transcoding in your configuration. Please ensure that rlottie is available. For more details, refer to the README."
   },
   "bot_msg": {
     "processing": "Processing...",
-    "stickers_set_info_from_url": "Sticker Name:%s\nCount：%d\n\nTo download the full set of stickers, click the button below。\nIf you want to download some of them, please send them directly.",
+    "stickers_set_info_from_url": "Sticker Name:%s\nCount：%d\n\nTo ddownload the full set of stickers, click the button below。\nIf you want to download some of them, please send them directly.",
     "downloading_with_progress": "Downloading[%d/%d]...",
     "uploaded_third_party": "Success!!\nSticker Name:%s\nSize:%s\nDownload:%s\n",
     "uploaded_telegram": "Success!!\nSticker Name:%s\nSize:%dMB\n",

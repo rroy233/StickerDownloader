@@ -2,6 +2,7 @@ package utils
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/rroy233/StickerDownloader/config"
 	"github.com/rroy233/StickerDownloader/languages"
 	"go.uber.org/ratelimit"
 	"gopkg.in/rroy233/logger.v2"
@@ -13,7 +14,9 @@ import (
 var bot *tgbotapi.BotAPI
 var loggerPrefix = "[utils]"
 var Limiter ratelimit.Limiter
-var isSystemFFmpegExist bool
+
+var ffmpegExecutablePath string
+var rlottieExcutablePath string
 
 func Init(api *tgbotapi.BotAPI) {
 	//初始化rate Limiter
@@ -24,29 +27,57 @@ func Init(api *tgbotapi.BotAPI) {
 	bot = api
 	initSender(3)
 
-	//file check
+	var err error
+
+	//folder check
 	if IsExist("./storage") == false {
-		_ = os.Mkdir("./storage", 0755)
+		err = os.Mkdir("./storage", 0755)
 	}
 	if IsExist("./storage/tmp") == false {
-		_ = os.Mkdir("./storage/tmp", 0755)
+		err = os.Mkdir("./storage/tmp", 0755)
 	}
 	if IsExist("./ffmpeg") == false {
-		_ = os.Mkdir("./ffmpeg", 0755)
+		err = os.Mkdir("./ffmpeg", 0755)
 	}
-	checkSystemFFmpeg()
-	if isSystemFFmpegExist == false && IsExist("./ffmpeg/"+getFfmpegFilename()) == false {
-		logger.FATAL.Printf(languages.Get(nil).System.FfmpegNotExist, getFfmpegFilename())
+	if config.Get().General.SupportTGSFile == true && IsExist("./lottie2gif") == false {
+		err = os.Mkdir("./lottie2gif", 0755)
 	}
+	if err != nil {
+		logger.FATAL.Println(err)
+	}
+
+	findFFmpeg()
+	if config.Get().General.SupportTGSFile == true {
+		findRlottie()
+	}
+
 	return
 }
 
-func checkSystemFFmpeg() {
+func findFFmpeg() {
+	//find ffmpeg from system PATH
 	paths := strings.Split(os.Getenv("PATH"), ":")
 	for _, path := range paths {
-		if IsExist(path+"/ffmpeg") == true || IsExist(path+"/ffmpeg.exe") == true {
-			isSystemFFmpegExist = true
-			break
+		if IsExist(path+"/ffmpeg") == true {
+			ffmpegExecutablePath = path + "/ffmpeg"
+			return
+		} else if IsExist(path+"/ffmpeg.exe") == true {
+			ffmpegExecutablePath = path + "/ffmpeg.exe"
+			return
 		}
 	}
+
+	//find from StickerDownloader running folder
+	if IsExist("./ffmpeg/"+getFfmpegFilename()) == false {
+		logger.FATAL.Printf(languages.Get(nil).System.FfmpegNotExist, getFfmpegFilename())
+	}
+	ffmpegExecutablePath = "./ffmpeg/" + getFfmpegFilename()
+}
+
+func findRlottie() {
+	//find from StickerDownloader running folder
+	if IsExist("./lottie2gif/"+getRlottieFilename()) == false {
+		logger.FATAL.Printf(languages.Get(nil).System.RlottieNotExist, "./lottie2gif/"+getRlottieFilename())
+	}
+	rlottieExcutablePath = "./lottie2gif/" + getRlottieFilename()
 }

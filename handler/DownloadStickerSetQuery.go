@@ -253,15 +253,22 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 				if utils.GetFileExtName(tempFilePath) == "webp" {
 					fileExt = "png"
 				}
-				outFilePath := fmt.Sprintf("%s/%s.%s", task.folderName, sticker.FileUniqueID, fileExt)
-				err = utils.ConvertToGif(ctx, tempFilePath, outFilePath)
+
+				//init convert task
+				convertTask := utils.ConvertTask{
+					InputFilePath:  tempFilePath,
+					InputExtension: utils.GetFileExtName(tempFilePath),
+					OutputFilePath: fmt.Sprintf("%s/%s.%s", task.folderName, sticker.FileUniqueID, fileExt),
+				}
+
+				err = convertTask.Run(ctx)
 				utils.RemoveFile(tempFilePath)
 				if err != nil {
 					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to convert：%s\n", i, sum, err.Error())
 					atomic.AddInt32(&task.failed, 1)
 					continue
 				}
-				db.CacheSticker(sticker, outFilePath)
+				db.CacheSticker(sticker, convertTask.OutputFilePath)
 			}
 			atomic.AddInt32(&task.finished, 1)
 		}
