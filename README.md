@@ -23,10 +23,11 @@
 
 ### 功能
 
-* 发送表情、表情链接给bot，bot为您转换为便于保存的gif文件
-* 转发gif图给bot，bot会以文件形式发送回给你以便保存。
-* 下载单个表情
-* 下载整个表情包
+* 发送表情、表情链接给bot，bot为您转换为便于保存的gif文件.
+* 支持将Telegram官方出品的表情(tgs)格式转换为gif.
+* 转发gif图给bot，bot会以文件形式发送回给你以便保存.
+* 下载单个表情.
+* 下载整个表情包.
 
 ![cover](docs/demo.gif)
 
@@ -34,6 +35,7 @@
 
 - Redis
 - ffmpeg
+- [lottie2gif](https://github.com/rroy233/lottie2gif) (可选)
 
 ### 使用方法
 
@@ -113,7 +115,16 @@ redis:
 
 下载对应平台的[ffmpeg](https://ffmpeg.org/)的可执行文件，命名格式为`ffmpeg-{GOOS}-{GOARCH}`，复制到`./ffmpeg`文件夹。
 
-#### 运行程序
+#### lottie2gif集成
+
+若需要支持tgs格式表情转换，需要为StickerDownloader集成[lottie2gif](https://github.com/rroy233/lottie2gif).
+
+并更改配置文件：
+
+```yaml
+  support_tgs_file: true
+```
+
 #### 后台运行脚本
 
 ```shell

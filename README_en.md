@@ -24,6 +24,7 @@
 ### Feature
 
 * Send stickers or sticker links to the bot, and it will convert them into easily savable GIF files for you.
+* Supports the conversion of Telegram's official stickers (tgs) to GIFs.
 * Forward GIFs to the bot, and it will send them back to you in file form for easy saving.
 * Download single sticker.
 * Download whole sticker set.
@@ -34,6 +35,7 @@
 
 - Redis
 - ffmpeg
+- [lottie2gif](https://github.com/rroy233/lottie2gif) (Optional)
 
 ### Usage
 
@@ -111,6 +113,14 @@ redis:
 If ffmpeg is already installed, you can skip this step.
 
 Download ffmpeg from [official website](https://ffmpeg.org/),  rename it to `ffmpeg-{GOOS}-{GOARCH}`, and put it into `./ffmpeg` folder.
+
+#### Integrate lottie2gif
+
+If you wish to enable the conversion of TGS format stickers, you will need to integrate [lottie2gif](https://github.com/rroy233/lottie2gif) into the StickerDownloader and make the following changes to the configuration file:
+
+```yaml
+  support_tgs_file: true
+```
 
 #### Launch Script
 
