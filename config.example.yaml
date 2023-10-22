@@ -6,6 +6,7 @@ general:
   admin_uid: 0
   user_daily_limit: 10
   process_wait_queue_max_size: 50
+  process_timeout: 60
   support_tgs_file: false
 
 cache:

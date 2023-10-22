@@ -83,6 +83,8 @@ general:
   admin_uid: 0 # 管理员UID
   user_daily_limit: 10 # 每日使用次数限制
   process_wait_queue_max_size: 50 # 等待队列最大长度
+  process_timeout: 60 # 处理超时时间(s)
+  support_tgs_file: false # 是否开启tgs表情支持
 
 cache:
   enabled: false # 是否启用文件缓存(需要使用Redis)
@@ -112,6 +114,7 @@ redis:
 下载对应平台的[ffmpeg](https://ffmpeg.org/)的可执行文件，命名格式为`ffmpeg-{GOOS}-{GOARCH}`，复制到`./ffmpeg`文件夹。
 
 #### 运行程序
+#### 后台运行脚本
 
 ```shell
 # 编译并运行

@@ -83,6 +83,8 @@ general:
   admin_uid: 0 # Admin UID
   user_daily_limit: 10 # Daily usage limit
   process_wait_queue_max_size: 50 # Maximum length of the wait queue
+  process_timeout: 60 # Processing timeout (s)
+  support_tgs_file: false # Whether to enable tgs stickers support
 
 cache:
   enabled: false # Whether to enable file caching (requires Redis)
@@ -110,7 +112,7 @@ If ffmpeg is already installed, you can skip this step.
 
 Download ffmpeg from [official website](https://ffmpeg.org/),  rename it to `ffmpeg-{GOOS}-{GOARCH}`, and put it into `./ffmpeg` folder.
 
-#### Run
+#### Launch Script
 
 ```shell
 # build and run

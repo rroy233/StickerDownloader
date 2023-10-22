@@ -120,7 +120,7 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 	//wait
 	success := true
 	for {
-		if time.Now().Sub(timeStart).Seconds() > ProcessTimeout { //default 60s timeout
+		if int(time.Now().Sub(timeStart).Seconds()) > ProcessTimeout { //default 60s timeout
 			success = false
 			logger.Error.Println(userInfo+"DownloadStickerSetQuery-Task Timeout:", task)
 			break
