@@ -112,7 +112,7 @@ redis:
 
 If ffmpeg is already installed, you can skip this step.
 
-Download ffmpeg from [official website](https://ffmpeg.org/),  rename it to `ffmpeg-{GOOS}-{GOARCH}`, and put it into `./ffmpeg` folder.
+Download ffmpeg from [official website](https://ffmpeg.org/),  rename it to `ffmpeg` or `ffmpeg.exe`, and put it into `./ffmpeg` folder.
 
 #### Integrate lottie2gif
 

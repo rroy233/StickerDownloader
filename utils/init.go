@@ -67,11 +67,19 @@ func findFFmpeg() {
 		}
 	}
 
-	//find from StickerDownloader running folder
-	if IsExist("./ffmpeg/"+getFfmpegFilename()) == false {
-		logger.FATAL.Printf(languages.Get(nil).System.FfmpegNotExist, getFfmpegFilename())
+	//Alerts users who have adopted older naming requirements
+	if IsExist("./ffmpeg/"+getFfmpegFilename(false)) == true {
+		if err := os.Rename("./ffmpeg/"+getFfmpegFilename(false), "./ffmpeg/"+getFfmpegFilename(true)); err != nil {
+			logger.FATAL.Printf("Failed to rename '%s' into '%s', please rename it manually.", getFfmpegFilename(false), getFfmpegFilename(true))
+		}
+		logger.Info.Printf("%s has been renamed into '%s'!", getFfmpegFilename(false), getFfmpegFilename(true))
 	}
-	ffmpegExecutablePath = "./ffmpeg/" + getFfmpegFilename()
+
+	//find from StickerDownloader running folder
+	if IsExist("./ffmpeg/"+getFfmpegFilename(true)) == false {
+		logger.FATAL.Printf(languages.Get(nil).System.FfmpegNotExist, getFfmpegFilename(true))
+	}
+	ffmpegExecutablePath = "./ffmpeg/" + getFfmpegFilename(true)
 }
 
 func findRlottie() {

@@ -113,7 +113,7 @@ redis:
 
 若已安装ffmpeg可跳过该步骤。
 
-下载对应平台的[ffmpeg](https://ffmpeg.org/)的可执行文件，命名格式为`ffmpeg-{GOOS}-{GOARCH}`，复制到`./ffmpeg`文件夹。
+下载对应平台的[ffmpeg](https://ffmpeg.org/)的可执行文件，命名格式为`ffmpeg`或`ffmpeg.exe`，复制到`./ffmpeg`文件夹。
 
 #### lottie2gif集成
 

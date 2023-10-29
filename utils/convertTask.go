@@ -81,12 +81,19 @@ func getRlottieFilename() string {
 	return fmt.Sprintf("lottie2gif" + exeSuffix)
 }
 
-func getFfmpegFilename() string {
+func getFfmpegFilename(simplify bool) string {
 	exeSuffix := ""
-	if runtime.GOOS == "windows" {
-		exeSuffix = ".exe"
+
+	if simplify == false {
+		exeSuffix += fmt.Sprintf("-%s-%s", runtime.GOOS, runtime.GOARCH)
 	}
-	return fmt.Sprintf("ffmpeg-%s-%s"+exeSuffix, runtime.GOOS, runtime.GOARCH)
+
+	//windows
+	if runtime.GOOS == "windows" {
+		exeSuffix += ".exe"
+	}
+
+	return "ffmpeg" + exeSuffix
 }
 
 func (task *ConvertTask) tgsDecode() error {
