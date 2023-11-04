@@ -96,7 +96,7 @@ func (f *UploadFile) UploadFragment(update *tgbotapi.Update) error {
 		f.CleanList = append(f.CleanList, fmt.Sprintf("%s_part-%d.zip", f.FolderPath, i))
 
 		SendAction(GetChatID(update), ChatActionSendDocument)
-		err = SendFile(update, fmt.Sprintf("%s_part-%d.zip", f.FolderPath, i))
+		_, err = SendFileByPath(update, fmt.Sprintf("%s_part-%d.zip", f.FolderPath, i))
 		if err != nil {
 			logger.Error.Println("UploadFragment SendFile error", err)
 		}

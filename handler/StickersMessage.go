@@ -41,12 +41,20 @@ func StickerMessage(update tgbotapi.Update) {
 		logger.Error.Println(userInfo+"failed to get file:", err)
 	}
 
-	cacheFile, err := db.FindStickerCache(update.Message.Sticker.FileUniqueID)
-	outPath := ""
-	if err == nil {
+	cacheItem, err := db.FindStickerCacheItem(update.Message.Sticker.FileUniqueID)
+	if err == nil && cacheItem.ConvertedFileID != "" {
 		//缓存存在
 		statistics.Statistics.Record("CacheHit", 1)
-		outPath = cacheFile
+
+		//通过file_id直接发送文件
+		if err := utils.SendFileByFileID(&update, cacheItem.ConvertedFileID); err != nil {
+			logger.Error.Println(userInfo+"failed to send file via FILE_ID:", err)
+			utils.EditMsgText(update.Message.Chat.ID,
+				msg.MessageID,
+				fmt.Sprintf("%s(TelegramAPI:%s)", languages.Get(&update).BotMsg.ErrSendFileFailed, err.Error()),
+			)
+			return
+		}
 	} else {
 		//缓存不存在
 		statistics.Statistics.Record("CacheMiss", 1)
@@ -77,7 +85,7 @@ func StickerMessage(update tgbotapi.Update) {
 		if convertTask.InputExtension == "webp" {
 			fileExt = "png"
 		}
-		outPath = fmt.Sprintf("./storage/tmp/convert_%s.%s", utils.RandString(), fileExt)
+		outPath := fmt.Sprintf("./storage/tmp/convert_%s.%s", utils.RandString(), fileExt)
 		convertTask.OutputFilePath = outPath
 
 		//start to convert
@@ -91,17 +99,26 @@ func StickerMessage(update tgbotapi.Update) {
 		}
 
 		db.CacheSticker(*update.Message.Sticker, convertTask.OutputFilePath)
-	}
 
-	utils.SendAction(update.Message.Chat.ID, utils.ChatActionSendDocument)
-	err = utils.SendFile(&update, outPath)
-	if err != nil {
-		logger.Error.Println(userInfo+"failed to SendFile:", err)
-		utils.EditMsgText(update.Message.Chat.ID,
-			msg.MessageID,
-			fmt.Sprintf("%s(TelegramAPI:%s)", languages.Get(&update).BotMsg.ErrSendFileFailed, err.Error()),
-		)
-		return
+		//upload file
+		utils.SendAction(update.Message.Chat.ID, utils.ChatActionSendDocument)
+		sentMsg, err := utils.SendFileByPath(&update, outPath)
+		if err != nil {
+			logger.Error.Println(userInfo+"failed to SendFile:", err)
+			utils.EditMsgText(update.Message.Chat.ID,
+				msg.MessageID,
+				fmt.Sprintf("%s(TelegramAPI:%s)", languages.Get(&update).BotMsg.ErrSendFileFailed, err.Error()),
+			)
+			return
+		}
+
+		//update cache
+		cacheItem.ConvertedFileID = sentMsg.Document.FileID
+		if err := cacheItem.Update(); err != nil {
+			logger.Error.Println(userInfo+"failed to update cache:", err)
+		}
+
+		utils.RemoveFile(outPath)
 	}
 
 	err = utils.BotRequest(tgbotapi.NewEditMessageTextAndMarkup(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ConvertCompleted, tgbotapi.NewInlineKeyboardMarkup(
@@ -111,6 +128,5 @@ func StickerMessage(update tgbotapi.Update) {
 		logger.Error.Println(userInfo+"failed to delete msg:", err)
 	}
 
-	utils.RemoveFile(outPath)
 	return
 }

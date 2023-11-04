@@ -78,7 +78,7 @@ func AnimationMessage(update tgbotapi.Update) {
 	dequeue(qItem)
 	//Dequeue
 
-	err = utils.SendFile(&update, outPath)
+	_, err = utils.SendFileByPath(&update, outPath)
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to SendFile:", err)
 		utils.EditMsgText(

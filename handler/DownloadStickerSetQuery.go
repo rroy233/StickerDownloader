@@ -185,7 +185,7 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 		uploadTask.Clean()
 	} else {
 		logger.Info.Println(userInfo + "DownloadStickerSetQuery-uploading(Telegram)")
-		err = utils.SendFile(&update, zipFilePath)
+		_, err = utils.SendFileByPath(&update, zipFilePath)
 		if err != nil {
 			logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to upload:", err)
 			utils.EditMsgText(

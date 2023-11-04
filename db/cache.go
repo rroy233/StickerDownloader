@@ -85,7 +85,7 @@ func cacheRemove(uniqueID string) {
 		return
 	}
 
-	item := new(stickerItem)
+	item := new(StickerItem)
 	err = json.Unmarshal([]byte(record), item)
 	if err != nil {
 		logger.Error.Println("[cacheRemove]json.Unmarshal error", err)
@@ -132,7 +132,7 @@ func FindStickerCache(uniqueID string) (string, error) {
 		return "", CacheErrorNotExist
 	}
 
-	item := new(stickerItem)
+	item := new(StickerItem)
 	err := json.Unmarshal([]byte(data), item)
 	if err != nil {
 		return "", CacheErrorNotExist
@@ -163,6 +163,28 @@ func FindStickerCache(uniqueID string) (string, error) {
 	return newFilePath, nil
 }
 
+// FindStickerCacheItem 查询是否有缓存
+// 返回缓存实例
+//
+// 若不存在，则返回CacheErrorNotExist
+func FindStickerCacheItem(uniqueID string) (*StickerItem, error) {
+	if cacheEnabled == false {
+		return nil, CacheErrorDisabled
+	}
+	data := rdb.Get(ctx, fmt.Sprintf("%s:Sticker_Cache:%s", ServicePrefix, utils.MD5Short(uniqueID))).Val()
+	if data == "" {
+		return nil, CacheErrorNotExist
+	}
+
+	item := new(StickerItem)
+	err := json.Unmarshal([]byte(data), item)
+	if err != nil {
+		return nil, CacheErrorNotExist
+	}
+
+	return item, nil
+}
+
 // ClearCache 清除缓存
 // 返回string为结果描述
 func ClearCache() (string, error) {
@@ -191,6 +213,19 @@ func ClearCache() (string, error) {
 	return fmt.Sprintf("Succeed!\nRemoved %d records from Redis\nRemoved %d files from localStorage!", countRedis, countLocal), nil
 }
 
+// Update
+//
+// Sync changes into Redis
+func (si *StickerItem) Update() error {
+	data, err := json.Marshal(si)
+	if err != nil {
+		return err
+	}
+
+	err = rdb.Set(ctx, fmt.Sprintf("%s:Sticker_Cache:%s", ServicePrefix, utils.MD5Short(si.Info.FileUniqueID)), string(data), CacheExpire).Err()
+	return err
+}
+
 // CacheSticker 缓存贴纸
 //
 // 传入tgbotapi.Sticker 和 convertedFilePath已转码文件的地址
@@ -204,7 +239,7 @@ func CacheSticker(sticker tgbotapi.Sticker, convertedFilePath string) {
 		return
 	}
 
-	item := new(stickerItem)
+	item := new(StickerItem)
 	item.Info = sticker
 	item.SaveTimeStamp = time.Now().Unix()
 	item.FileExt = utils.GetFileExtName(convertedFilePath)
@@ -262,12 +297,12 @@ func cacheDoClean() {
 	//本地文件名后缀的哈希表，若checkMap[localFilenamePrefix]!=0则本地文件有效，无需因过期而清除
 	checkMap := make(map[string]int, len(keys))
 	//本地文件名到stickerItem的映射
-	itemMapByFilename := make(map[string]*stickerItem)
+	itemMapByFilename := make(map[string]*StickerItem)
 	val := ""
 	var err error
-	var item *stickerItem
+	var item *StickerItem
 	for _, key := range keys {
-		item = new(stickerItem)
+		item = new(StickerItem)
 		val = rdb.Get(ctx, key).Val()
 		if val == "" {
 			continue

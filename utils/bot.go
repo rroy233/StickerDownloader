@@ -63,13 +63,51 @@ func SendImg(update *tgbotapi.Update, fileData []byte) (msgSent tgbotapi.Message
 	return smsg
 }
 
-func SendFile(update *tgbotapi.Update, filePath string) error {
+// SendFileByPath 发送文件
+//
+// 传入文件本地存储地址
+func SendFileByPath(update *tgbotapi.Update, filePath string) (tgbotapi.Message, error) {
+	if update.Message == nil && update.CallbackQuery == nil {
+		return tgbotapi.Message{}, errors.New("message nil")
+	}
+
+	var msg tgbotapi.MediaGroupConfig
+	file := tgbotapi.FilePath(filePath)
+	if update.Message != nil {
+		msg = tgbotapi.NewMediaGroup(update.Message.Chat.ID, []interface{}{tgbotapi.NewInputMediaDocument(file)})
+	} else if update.CallbackQuery != nil || update.CallbackQuery.Message != nil {
+		msg = tgbotapi.NewMediaGroup(update.CallbackQuery.Message.Chat.ID, []interface{}{tgbotapi.NewInputMediaDocument(file)})
+	}
+
+	Limiter.Take()
+	sentMsg, err := bot.SendMediaGroup(msg)
+	if err != nil {
+		logger.Error.Println("failed to send file：", err)
+		if strings.Contains(err.Error(), "api.telegram.org") == false {
+			return tgbotapi.Message{}, err
+		}
+		return tgbotapi.Message{}, errors.New("network error")
+	}
+
+	//记录statistic
+	info, err := os.Stat(filePath)
+	if err == nil {
+		statistics.Statistics.Record("NetworkUpload", int32(info.Size()))
+	}
+
+	return sentMsg[0], err
+}
+
+// SendFileByFileID 发送文件
+//
+// 传入文件 file_id
+func SendFileByFileID(update *tgbotapi.Update, fileID string) error {
 	if update.Message == nil && update.CallbackQuery == nil {
 		return errors.New("message nil")
 	}
 
 	var msg tgbotapi.MediaGroupConfig
-	file := tgbotapi.FilePath(filePath)
+	file := tgbotapi.FileID(fileID)
 	if update.Message != nil {
 		msg = tgbotapi.NewMediaGroup(update.Message.Chat.ID, []interface{}{tgbotapi.NewInputMediaDocument(file)})
 	} else if update.CallbackQuery != nil || update.CallbackQuery.Message != nil {
@@ -84,12 +122,6 @@ func SendFile(update *tgbotapi.Update, filePath string) error {
 			return err
 		}
 		return errors.New("network error")
-	}
-
-	//记录statistic
-	info, err := os.Stat(filePath)
-	if err == nil {
-		statistics.Statistics.Record("NetworkUpload", int32(info.Size()))
 	}
 
 	return err
