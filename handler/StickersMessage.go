@@ -98,8 +98,6 @@ func StickerMessage(update tgbotapi.Update) {
 			return
 		}
 
-		db.CacheSticker(*update.Message.Sticker, convertTask.OutputFilePath)
-
 		//upload file
 		utils.SendAction(update.Message.Chat.ID, utils.ChatActionSendDocument)
 		sentMsg, err := utils.SendFileByPath(&update, outPath)
@@ -112,12 +110,16 @@ func StickerMessage(update tgbotapi.Update) {
 			return
 		}
 
-		//update cache
-		cacheItem.ConvertedFileID = sentMsg.Document.FileID
-		if err := cacheItem.Update(); err != nil {
-			logger.Error.Println(userInfo+"failed to update cache:", err)
+		//CacheSticker
+		cacheItem, err = db.CacheSticker(*update.Message.Sticker, convertTask.OutputFilePath)
+		if err != nil {
+			logger.Error.Println(userInfo+"CacheSticker Error ", err)
+		} else {
+			cacheItem.ConvertedFileID = sentMsg.Document.FileID
+			if err := cacheItem.Update(); err != nil {
+				logger.Error.Println(userInfo+"failed to update cache:", err)
+			}
 		}
-
 		utils.RemoveFile(outPath)
 	}
 

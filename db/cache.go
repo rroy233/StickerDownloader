@@ -229,14 +229,13 @@ func (si *StickerItem) Update() error {
 // CacheSticker 缓存贴纸
 //
 // 传入tgbotapi.Sticker 和 convertedFilePath已转码文件的地址
-func CacheSticker(sticker tgbotapi.Sticker, convertedFilePath string) {
+func CacheSticker(sticker tgbotapi.Sticker, convertedFilePath string) (*StickerItem, error) {
 	if cacheEnabled == false {
-		return
+		return nil, errors.New("cache is DISABLED")
 	}
-	loggerPrefix := "[CacheSticker]"
 	data := rdb.Get(ctx, fmt.Sprintf("%s:Sticker_Cache:%s", ServicePrefix, utils.MD5Short(sticker.FileUniqueID))).Val()
 	if data != "" {
-		return
+		return nil, errors.New("failed to save")
 	}
 
 	item := new(StickerItem)
@@ -250,32 +249,29 @@ func CacheSticker(sticker tgbotapi.Sticker, convertedFilePath string) {
 
 	fileMd5, err := utils.MD5File(convertedFilePath)
 	if err != nil {
-		logger.Error.Println(loggerPrefix+"utils.MD5File(convertedFilePath) error:", err)
+		return nil, errors.New("utils.MD5File(convertedFilePath) error:" + err.Error())
 	}
 	item.MD5 = fileMd5
 
 	err = utils.CopyFile(convertedFilePath, item.SavePath)
 	if err != nil {
-		logger.Error.Println(loggerPrefix+"Failed to copy file:", err)
-		return
+		return nil, errors.New("Failed to copy file:" + err.Error())
 	}
 
 	out, err := json.Marshal(item)
 	if err != nil {
-		logger.Error.Println(loggerPrefix+" json.Marshal(item) error:", err)
-		return
+		return nil, errors.New("json.Marshal(item) error:" + err.Error())
 	}
 
 	err = rdb.Set(ctx, fmt.Sprintf("%s:Sticker_Cache:%s", ServicePrefix, utils.MD5Short(sticker.FileUniqueID)), string(out), CacheExpire).Err()
 	if err != nil {
-		logger.Error.Println(loggerPrefix+"Failed to store redis:", err)
-		return
+		return nil, errors.New("Failed to store redis:" + err.Error())
 	}
 
 	cacheLocalDiskUsage += item.Size
 	//记录statistic(+)
 	statistics.Statistics.Record("StorageChange", int32(item.Size))
-	return
+	return item, nil
 }
 
 func cacheCleaner() {

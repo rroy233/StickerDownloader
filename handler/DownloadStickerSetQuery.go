@@ -218,7 +218,7 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 		case sticker = <-queue:
 			i := task.finished + task.failed
 			sum := task.total
-
+			stickerInfo := utils.JsonEncode(sticker)
 			cacheTmpFile, err := db.FindStickerCache(sticker.FileUniqueID)
 			if err == nil {
 				//命中缓存
@@ -226,7 +226,7 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 				err := utils.CopyFile(cacheTmpFile, fmt.Sprintf("%s/%s.%s", task.folderName, sticker.FileUniqueID, utils.GetFileExtName(cacheTmpFile)))
 				utils.RemoveFile(cacheTmpFile)
 				if err != nil {
-					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to copy：%s", i, sum, err.Error())
+					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to copy：%s,%s", i, sum, err.Error(), stickerInfo)
 					atomic.AddInt32(&task.failed, 1)
 					continue
 				}
@@ -237,14 +237,14 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 					FileID: sticker.FileID,
 				})
 				if err != nil {
-					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to get file:%s", i, sum, err.Error())
+					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to get file:%s,%s", i, sum, err.Error(), stickerInfo)
 					atomic.AddInt32(&task.failed, 1)
 					continue
 				}
 
 				tempFilePath, err := utils.DownloadFile(remoteFile.Link(config.Get().General.BotToken))
 				if err != nil {
-					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to download:%s", i, sum, err.Error())
+					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to download:%s,%s", i, sum, err.Error(), stickerInfo)
 					atomic.AddInt32(&task.failed, 1)
 					continue
 				}
@@ -264,11 +264,13 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 				err = convertTask.Run(ctx)
 				utils.RemoveFile(tempFilePath)
 				if err != nil {
-					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to convert：%s\n", i, sum, err.Error())
+					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to convert：%s,%s\n", i, sum, err.Error(), stickerInfo)
 					atomic.AddInt32(&task.failed, 1)
 					continue
 				}
-				db.CacheSticker(sticker, convertTask.OutputFilePath)
+				if _, err := db.CacheSticker(sticker, convertTask.OutputFilePath); err != nil {
+					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to Save Cache:%s,%s", i, sum, err.Error(), stickerInfo)
+				}
 			}
 			atomic.AddInt32(&task.finished, 1)
 		}

@@ -23,7 +23,6 @@ var stopCtx context.Context
 var cancelCh chan int
 
 func main() {
-
 	//config
 	config.Init()
 
