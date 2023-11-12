@@ -185,6 +185,15 @@ func FindStickerCacheItem(uniqueID string) (*StickerItem, error) {
 	return item, nil
 }
 
+func parseIntoCacheItem(redisData string) (*StickerItem, error) {
+	item := new(StickerItem)
+	err := json.Unmarshal([]byte(redisData), item)
+	if err != nil {
+		return nil, CacheErrorNotExist
+	}
+	return item, nil
+}
+
 // ClearCache 清除缓存
 // 返回string为结果描述
 func ClearCache() (string, error) {
@@ -235,7 +244,8 @@ func CacheSticker(sticker tgbotapi.Sticker, convertedFilePath string) (*StickerI
 	}
 	data := rdb.Get(ctx, fmt.Sprintf("%s:Sticker_Cache:%s", ServicePrefix, utils.MD5Short(sticker.FileUniqueID))).Val()
 	if data != "" {
-		return nil, errors.New("failed to save")
+		//cache已存在
+		return parseIntoCacheItem(data)
 	}
 
 	item := new(StickerItem)
