@@ -25,7 +25,7 @@ func AddStickerUrlMessage(update tgbotapi.Update) {
 		Name: update.Message.Text[len(addStickersUrlPrefix):],
 	})
 	if err != nil {
-		logger.Error.Println(userInfo+"failed to GetStickerSet:", err)
+		logger.Info.Println(userInfo+"failed to GetStickerSet:", err)
 		utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrFailedToDownload)
 		return
 	}
