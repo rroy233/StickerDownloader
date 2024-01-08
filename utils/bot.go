@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -80,13 +81,22 @@ func SendFileByPath(update *tgbotapi.Update, filePath string) (tgbotapi.Message,
 	}
 
 	Limiter.Take()
-	sentMsg, err := bot.SendMediaGroup(msg)
+
+	//bot.SendMediaGroup(msg)
+	//github.com/go-telegram-bot-api/telegram-bot-api/v5这个库有bug
+	//运行一段时间之后的http请求会得到500 Internal Server Error的异常响应
+	//考虑到该库处于年久失修的状态，且目前暂不考虑使更换此项目的tg机器人库
+	//若遇到上述问题，重启一下即可解决
+	resp, err := bot.Request(msg)
+	if err != nil {
+		logger.Error.Println("bot.Request error：", err, JsonEncode(resp))
+		return tgbotapi.Message{}, errors.New("network error-1")
+	}
+	var messages []tgbotapi.Message
+	err = json.Unmarshal(resp.Result, &messages)
 	if err != nil {
 		logger.Error.Println("failed to send file：", err)
-		if strings.Contains(err.Error(), "api.telegram.org") == false {
-			return tgbotapi.Message{}, err
-		}
-		return tgbotapi.Message{}, errors.New("network error")
+		return tgbotapi.Message{}, errors.New("network error-2")
 	}
 
 	//记录statistic
@@ -95,7 +105,7 @@ func SendFileByPath(update *tgbotapi.Update, filePath string) (tgbotapi.Message,
 		statistics.Statistics.Record("NetworkUpload", int32(info.Size()))
 	}
 
-	return sentMsg[0], err
+	return messages[0], err
 }
 
 // SendFileByFileID 发送文件
