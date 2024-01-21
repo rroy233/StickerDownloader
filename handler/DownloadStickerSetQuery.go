@@ -43,6 +43,14 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 		return
 	}
 
+	//check amount of this sticker set
+	//compare with max_amount_per_req
+	if len(stickerSet.Stickers) > config.Get().General.MaxAmountPerReq {
+		logger.Info.Println(userInfo + "DownloadStickerSetQuery- amount > max_amount_per_req")
+		utils.CallBackWithAlert(update.CallbackQuery.ID, languages.Get(&update).BotMsg.ErrStickerSetAmountReachLimit)
+		return
+	}
+
 	//remove old msg to prevent frequent request
 	if time.Now().Unix()-int64(update.CallbackQuery.Message.Date) < 48*Hour {
 		utils.DeleteMsg(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID)

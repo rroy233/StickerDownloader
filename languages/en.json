@@ -9,7 +9,7 @@
   },
   "bot_msg": {
     "processing": "Processing...",
-    "stickers_set_info_from_url": "Sticker Name:%s\nCount：%d\n\nTo ddownload the full set of stickers, click the button below。\nIf you want to download some of them, please send them directly.",
+    "stickers_set_info_from_url": "Sticker Name:%s\nCount：%d\n\nTo download the full set of stickers, click the button below。\nIf you want to download some of them, please send them directly.",
     "downloading_with_progress": "Downloading[%d/%d]...",
     "uploaded_third_party": "Success!!\nSticker Name:%s\nSize:%s\nDownload:%s\n",
     "uploaded_telegram": "Success!!\nSticker Name:%s\nSize:%dMB\n",
@@ -34,6 +34,7 @@
     "err_upload_failed": "Failed to upload!!!",
     "err_sticker_not_support": "Sticker not support!",
     "err_convert_failed": "Failed to convert!!",
-    "err_send_file_failed": "Failed to send file!!!"
+    "err_send_file_failed": "Failed to send file!!!",
+    "err_sticker_set_amount_reach_limit": "This sticker set contains more stickers than allowed limit. Please send it separately or use a self-deployed version."
   }
 }

@@ -19,6 +19,7 @@ type Config struct {
 		ProcessWaitQueueMaxSize int    `yaml:"process_wait_queue_max_size"`
 		ProcessTimeout          int    `yaml:"process_timeout"`
 		SupportTGSFile          bool   `yaml:"support_tgs_file"`
+		MaxAmountPerReq         int    `yaml:"max_amount_per_req"`
 	} `yaml:"general"`
 	Cache struct {
 		Enabled            bool   `yaml:"enabled"`
@@ -56,6 +57,11 @@ func Init() {
 	err = yaml.Unmarshal(data, cf)
 	if err != nil {
 		log.Fatalln("failed to parse config.yaml", err)
+	}
+
+	//validate config
+	if cf.General.MaxAmountPerReq == 0 {
+		log.Fatalln("General.MaxAmountPerReq should NOT be 0")
 	}
 }
 

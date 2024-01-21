@@ -87,6 +87,7 @@ general:
   process_wait_queue_max_size: 50 # 等待队列最大长度
   process_timeout: 60 # 处理超时时间(s)
   support_tgs_file: false # 是否开启tgs表情支持
+  max_amount_per_req: 100 # 下载整套表情包时允许的最大数量
 
 cache:
   enabled: false # 是否启用文件缓存(需要使用Redis)

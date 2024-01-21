@@ -34,6 +34,7 @@
 		"err_upload_failed": "上传失败！！！",
 		"err_sticker_not_support": "该表情不支持下载",
 		"err_convert_failed": "转换文件失败",
-		"err_send_file_failed": "发送文件失败"
+		"err_send_file_failed": "发送文件失败",
+		"err_sticker_set_amount_reach_limit": "该表情包包含的表情数量过多，请单独发送表情或使用自行部署的版本"
 	}
 }

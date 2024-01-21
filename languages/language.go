@@ -20,33 +20,34 @@ type LanguageStruct struct {
 		RlottieNotExist    string `json:"rlottie_not_exist"`
 	} `json:"system"`
 	BotMsg struct {
-		Processing              string `json:"processing"`
-		StickersSetInfoFromUrl  string `json:"stickers_set_info_from_url"`
-		DownloadingWithProgress string `json:"downloading_with_progress"`
-		UploadedThirdParty      string `json:"uploaded_third_party"`
-		UploadedTelegram        string `json:"uploaded_telegram"`
-		GetLimitCommand         string `json:"get_limit_command"`
-		StartCommand            string `json:"start_command"`
-		HelpCommand             string `json:"help_command"`
-		ConvertCompleted        string `json:"convert_completed"`
-		ConvertedWaitingUpload  string `json:"converted_waiting_upload"`
-		DownloadStickerSet      string `json:"download_sticker_set"`
-		ReloadConfigSuccess     string `json:"reload_config_success"`
-		QueueAbortBtn           string `json:"queue_abort_btn"`
-		QueueAborted            string `json:"queue_aborted"`
-		QueueProcess            string `json:"queue_process"`
-		ErrRateReachLimit       string `json:"err_rate_reach_limit"`
-		ErrSysBusy              string `json:"err_sys_busy"`
-		ErrNoPermission         string `json:"err_no_permission"`
-		ErrReachLimit           string `json:"err_reach_limit"`
-		ErrFailedToDownload     string `json:"err_failed_to_download"`
-		ErrSysFailureOccurred   string `json:"err_sys_failure_occurred"`
-		ErrFailed               string `json:"err_failed"`
-		ErrTimeout              string `json:"err_timeout"`
-		ErrUploadFailed         string `json:"err_upload_failed"`
-		ErrStickerNotSupport    string `json:"err_sticker_not_support"`
-		ErrConvertFailed        string `json:"err_convert_failed"`
-		ErrSendFileFailed       string `json:"err_send_file_failed"`
+		Processing                    string `json:"processing"`
+		StickersSetInfoFromUrl        string `json:"stickers_set_info_from_url"`
+		DownloadingWithProgress       string `json:"downloading_with_progress"`
+		UploadedThirdParty            string `json:"uploaded_third_party"`
+		UploadedTelegram              string `json:"uploaded_telegram"`
+		GetLimitCommand               string `json:"get_limit_command"`
+		StartCommand                  string `json:"start_command"`
+		HelpCommand                   string `json:"help_command"`
+		ConvertCompleted              string `json:"convert_completed"`
+		ConvertedWaitingUpload        string `json:"converted_waiting_upload"`
+		DownloadStickerSet            string `json:"download_sticker_set"`
+		ReloadConfigSuccess           string `json:"reload_config_success"`
+		QueueAbortBtn                 string `json:"queue_abort_btn"`
+		QueueAborted                  string `json:"queue_aborted"`
+		QueueProcess                  string `json:"queue_process"`
+		ErrRateReachLimit             string `json:"err_rate_reach_limit"`
+		ErrSysBusy                    string `json:"err_sys_busy"`
+		ErrNoPermission               string `json:"err_no_permission"`
+		ErrReachLimit                 string `json:"err_reach_limit"`
+		ErrFailedToDownload           string `json:"err_failed_to_download"`
+		ErrSysFailureOccurred         string `json:"err_sys_failure_occurred"`
+		ErrFailed                     string `json:"err_failed"`
+		ErrTimeout                    string `json:"err_timeout"`
+		ErrUploadFailed               string `json:"err_upload_failed"`
+		ErrStickerNotSupport          string `json:"err_sticker_not_support"`
+		ErrConvertFailed              string `json:"err_convert_failed"`
+		ErrSendFileFailed             string `json:"err_send_file_failed"`
+		ErrStickerSetAmountReachLimit string `json:"err_sticker_set_amount_reach_limit"`
 	} `json:"bot_msg"`
 }
 

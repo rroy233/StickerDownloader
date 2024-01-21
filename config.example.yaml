@@ -8,6 +8,7 @@ general:
   process_wait_queue_max_size: 50
   process_timeout: 60
   support_tgs_file: false
+  max_amount_per_req: 100
 
 cache:
   enabled: false

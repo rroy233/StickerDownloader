@@ -87,6 +87,7 @@ general:
   process_wait_queue_max_size: 50 # Maximum length of the wait queue
   process_timeout: 60 # Processing timeout (s)
   support_tgs_file: false # Whether to enable tgs stickers support
+  max_amount_per_req: 100 # Maximum number of stickers allowed when downloading the whole set
 
 cache:
   enabled: false # Whether to enable file caching (requires Redis)
