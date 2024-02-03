@@ -111,13 +111,15 @@ func StickerMessage(update tgbotapi.Update) {
 		}
 
 		//CacheSticker
-		cacheItem, err = db.CacheSticker(*update.Message.Sticker, convertTask.OutputFilePath)
-		if err != nil {
-			logger.Error.Println(userInfo+"CacheSticker Error ", err)
-		} else {
-			cacheItem.ConvertedFileID = sentMsg.Document.FileID
-			if err := cacheItem.Update(); err != nil {
-				logger.Error.Println(userInfo+"failed to update cache:", err)
+		if config.Get().Cache.Enabled == true {
+			cacheItem, err = db.CacheSticker(*update.Message.Sticker, convertTask.OutputFilePath)
+			if err != nil {
+				logger.Error.Println(userInfo+"CacheSticker Error ", err)
+			} else {
+				cacheItem.ConvertedFileID = sentMsg.Document.FileID
+				if err := cacheItem.Update(); err != nil {
+					logger.Error.Println(userInfo+"failed to update cache:", err)
+				}
 			}
 		}
 		utils.RemoveFile(outPath)

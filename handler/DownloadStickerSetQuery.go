@@ -276,8 +276,10 @@ func downloadWorker(ctx context.Context, queue chan tgbotapi.Sticker, task *down
 					atomic.AddInt32(&task.failed, 1)
 					continue
 				}
-				if _, err := db.CacheSticker(sticker, convertTask.OutputFilePath); err != nil {
-					logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to Save Cache:%s,%s", i, sum, err.Error(), stickerInfo)
+				if config.Get().Cache.Enabled == true {
+					if _, err := db.CacheSticker(sticker, convertTask.OutputFilePath); err != nil {
+						logger.Error.Printf("DownloadStickerSetQuery[%d/%d]-failed to Save Cache:%s,%s", i, sum, err.Error(), stickerInfo)
+					}
 				}
 			}
 			atomic.AddInt32(&task.finished, 1)
