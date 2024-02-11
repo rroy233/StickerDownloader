@@ -125,6 +125,11 @@ func StickerMessage(update tgbotapi.Update) {
 		utils.RemoveFile(outPath)
 	}
 
+	//Consume the current user's daily limit
+	if err = db.ConsumeLimit(&update); err != nil {
+		logger.Error.Println(userInfo + err.Error())
+	}
+
 	err = utils.BotRequest(tgbotapi.NewEditMessageTextAndMarkup(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ConvertCompleted, tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(languages.Get(&update).BotMsg.DownloadStickerSet, DownloadStickerSetCallbackQuery)),
 	)))

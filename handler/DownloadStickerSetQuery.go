@@ -214,6 +214,11 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 		logger.Info.Println(userInfo + "DownloadStickerSetQuery-upload(Telegram) successfully！！！")
 	}
 
+	//Consume the current user's daily limit
+	if err = db.ConsumeLimit(&update); err != nil {
+		logger.Error.Println(userInfo + "DownloadStickerSetQuery - " + err.Error())
+	}
+
 	return
 }
 

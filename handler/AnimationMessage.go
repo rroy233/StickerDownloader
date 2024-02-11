@@ -5,6 +5,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/StickerDownloader/config"
+	"github.com/rroy233/StickerDownloader/db"
 	"github.com/rroy233/StickerDownloader/languages"
 	"github.com/rroy233/StickerDownloader/utils"
 	"gopkg.in/rroy233/logger.v2"
@@ -87,6 +88,11 @@ func AnimationMessage(update tgbotapi.Update) {
 			fmt.Sprintf("%s(TelegramAPI:%s)", languages.Get(&update).BotMsg.ErrSendFileFailed, err.Error()),
 		)
 		return
+	}
+
+	//Consume the current user's daily limit
+	if err = db.ConsumeLimit(&update); err != nil {
+		logger.Error.Println(userInfo + err.Error())
 	}
 
 	utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ConvertCompleted)
