@@ -11,6 +11,7 @@ import (
 	"github.com/rroy233/StickerDownloader/statistics"
 	"github.com/rroy233/StickerDownloader/utils"
 	"gopkg.in/rroy233/logger.v2"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -25,6 +26,7 @@ var cancelCh chan int
 func main() {
 	//config
 	config.Init()
+	log.Println("[main]config=" + utils.JsonEncode(config.Get()))
 
 	//logger
 	logger.New(

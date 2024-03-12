@@ -32,7 +32,7 @@ func AddStickerUrlMessage(update tgbotapi.Update) {
 
 	//len equal to 0
 	if len(stickerSet.Stickers) == 0 {
-		logger.Error.Println(userInfo+"len(stickerSet.Stickers) == 0", utils.JsonEncode(stickerSet))
+		logger.Info.Println(userInfo+"len(stickerSet.Stickers) == 0", utils.JsonEncode(stickerSet))
 		utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrFailedToDownload)
 		return
 	}

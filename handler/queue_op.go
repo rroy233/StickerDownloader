@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rroy233/StickerDownloader/db"
@@ -25,7 +26,8 @@ func enqueue(update *tgbotapi.Update, queueEditMsg *tgbotapi.Message) (*db.QItem
 	needRecover := false
 	qItem, err := db.EnQueue(utils.GetUID(update))
 	if err != nil {
-		if err == db.ErrorQueueFull {
+		if errors.Is(err, db.ErrorQueueFull) {
+			logger.Warn.Printf("[handler.enqueue]Queue is FULL! chatID:%d MsgID:%d", queueEditMsg.Chat.ID, queueEditMsg.MessageID)
 			utils.EditMsgText(queueEditMsg.Chat.ID, queueEditMsg.MessageID, languages.Get(update).BotMsg.ErrSysBusy)
 			return nil, true
 		}

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"gopkg.in/rroy233/logger.v2"
 	"sync"
 	"time"
 )
@@ -45,7 +46,7 @@ var queue *QStruct
 var maxQueueSize int
 var QueueTimeout int64
 
-const queueCleanerInterval = 30 * time.Second
+const queueCleanerInterval = 10 * time.Second
 
 func initQueue(maxSize int) {
 	if maxSize == 0 {
@@ -79,6 +80,13 @@ func queueCleaner() {
 			}
 		}
 		queue.lock.Unlock()
+
+		p := queue.head
+		for queue.data[p] != nil && queue.data[p].abort == true {
+			queue.pop()
+			p = (p + 1) % maxQueueSize
+		}
+
 		time.Sleep(queueCleanerInterval)
 	}
 }
@@ -180,22 +188,33 @@ func (q *QStruct) pop() *QItem {
 	q.data[q.head] = nil
 	q.size--
 	q.head = (q.head + 1) % maxQueueSize
+	if q.size == 0 {
+		q.head = 0
+		q.tail = 0
+	}
 	return item
 }
 
-func (q *QStruct) print() {
+func (q *QStruct) debugPrint() {
 	q.lock.Lock()
 	defer q.lock.Unlock()
-	fmt.Printf("[Size=%d,head=%d,tail=%d]->[\n", q.size, q.head, q.tail)
+	text := ""
+	text += fmt.Sprintf("[Size=%d,head=%d,tail=%d]->[\n", q.size, q.head, q.tail)
 	for i := 0; i < maxQueueSize; i++ {
-		fmt.Printf("\t")
+		text += fmt.Sprintf("\t")
 		if q.data[i] == nil {
-			fmt.Printf("<nil>")
+			text += fmt.Sprintf("<nil>")
 		} else {
-			fmt.Printf("UUID=%s\tUID=%d\tabort=%v", q.data[i].UUID, q.data[i].uid, q.data[i].abort)
+			text += fmt.Sprintf("UUID=%s\tUID=%d\tabort=%v\tadd_time=%d\tqueueIndex=%d",
+				q.data[i].UUID, q.data[i].uid, q.data[i].abort, q.data[i].addTime, q.data[i].queueIndex,
+			)
 		}
-		fmt.Printf("\n")
+		text += "\n"
 	}
+	if logger.Debug == nil {
+		logger.New(&logger.Config{StdOutput: true})
+	}
+	logger.Debug.Println(text)
 	return
 }
 
