@@ -1,0 +1,40 @@
+{
+  "system": {
+    "running": "正在運行⋯⋯",
+    "stop_running": "已結束運行！",
+    "db_redis_start_failed": "Redis啟動失敗：",
+    "db_redis_connected": "已連接至Redis",
+    "ffmpeg_not_exist": "%s不存在！請到官網下載可執行文件並重命名放入./ffmpeg資料夾\n",
+    "rlottie_not_exist": "%s不存在！檢測到您在配置項中開啟了對.tgs文件轉碼的支持，請務必確保rlottie可用。詳情請查看README\n"
+  },
+  "bot_msg": {
+    "processing": "處理中⋯⋯",
+    "stickers_set_info_from_url": "表情包名：%s\n數量：%d\n\n若需要下載整套表情包，請點擊下方按鈕。\n若下載部分，請直接發送表情。",
+    "downloading_with_progress": "正在下載[%d/%d]⋯⋯",
+    "uploaded_third_party": "上傳成功！！\n表情包名：%s\n文件大小：%s\n下載地址：%s\n",
+    "uploaded_telegram": "上傳成功！！\n表情包名：%s\n文件大小：%dMB\n",
+    "get_limit_command": "您當前可用次數為：%d次",
+    "start_command": "歡迎使用！\n請直接給bot發送表情，它會幫你轉換為gif！\n你也可以轉發gif圖給bot，bot會以文件形式發送回給你以便保存！\n項目地址：https://github.com/rroy233/StickerDownloader\n\n發送 /help 查看幫助",
+    "help_command": "使用幫助：\n請直接給bot發送表情，它會幫你轉換為gif！\n當前每個用戶每日可使用%d次\n\n命令列表：\n /help - 查看幫助\n /getlimit - 查看當日可用使用次數",
+    "convert_completed": "已完成轉換！",
+    "converted_waiting_upload": "任務完成（成功%d/失敗%d），正在上傳文件⋯⋯",
+    "download_sticker_set": "下載整套表情包",
+    "reload_config_success": "已重新加載配置文件",
+    "queue_abort_btn": "退出排隊",
+    "queue_aborted": "已成功退出排隊！",
+    "queue_process": "正在為您排隊等候，前面有%d項任務待處理⋯⋯",
+    "err_rate_reach_limit": "慢一點，我受不了(>_<)！",
+    "err_sys_busy": "系統繁忙，請稍後再試！",
+    "err_no_permission": "您無權限使用",
+    "err_reach_limit": "您目前每24小時只允許使用%d次，您的使用已達到限制。",
+    "err_failed_to_download": "獲取失敗",
+    "err_sys_failure_occurred": "系統異常",
+    "err_failed": "失敗",
+    "err_timeout": "任務超時！！！",
+    "err_upload_failed": "上傳失敗！！！",
+    "err_sticker_not_support": "該表情不支持下載",
+    "err_convert_failed": "轉換文件失敗",
+    "err_send_file_failed": "發送文件失敗",
+    "err_sticker_set_amount_reach_limit": "該表情包包含的表情數量過多，請單獨發送表情或使用自行部署的版本"
+  }
+}

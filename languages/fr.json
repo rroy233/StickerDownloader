@@ -1,0 +1,40 @@
+{
+  "system": {
+    "running": "En cours d'exécution...",
+    "stop_running": "Arrêté !",
+    "db_redis_start_failed": "Échec du démarrage de Redis :",
+    "db_redis_connected": "Redis connecté",
+    "ffmpeg_not_exist": "Le fichier %s est introuvable ! Merci de le télécharger depuis le site officiel et de le renommer avant de le placer dans le dossier ./ffmpeg\n",
+    "rlottie_not_exist": "Le fichier %s est introuvable ! Nous avons détecté que vous avez activé la prise en charge de la conversion des fichiers .tgs dans les paramètres de configuration. Assurez-vous que rlottie est disponible. Pour plus de détails, consultez le README\n"
+  },
+  "bot_msg": {
+    "processing": "Traitement en cours...",
+    "stickers_set_info_from_url": "Nom du pack de stickers : %s\nNombre : %d\n\nSi vous souhaitez télécharger l'ensemble du pack de stickers, veuillez cliquer sur le bouton ci-dessous.\nSi vous souhaitez télécharger une partie seulement, envoyez directement le sticker.",
+    "downloading_with_progress": "Téléchargement en cours [%d/%d]...",
+    "uploaded_third_party": "Téléchargement réussi !\nNom du pack de stickers : %s\nTaille du fichier : %s\nLien de téléchargement : %s\n",
+    "uploaded_telegram": "Téléchargement réussi !\nNom du pack de stickers : %s\nTaille du fichier : %d Mo\n",
+    "get_limit_command": "Votre nombre d'utilisations disponibles actuel est de : %d",
+    "start_command": "Bienvenue !\nVeuillez envoyer directement un sticker au bot, il le convertira en GIF pour vous !\nVous pouvez également transférer un GIF au bot, il vous le renverra sous forme de fichier pour que vous puissiez le sauvegarder !\nLien du projet : https://github.com/rroy233/StickerDownloader\n\nEnvoyez /help pour afficher l'aide",
+    "help_command": "Aide à l'utilisation :\nVeuillez envoyer directement un sticker au bot, il le convertira en GIF pour vous !\nChaque utilisateur peut utiliser le bot %d fois par jour.\n\nListe des commandes :\n /help - Afficher l'aide\n /getlimit - Voir le nombre d'utilisations disponibles pour la journée",
+    "convert_completed": "Conversion terminée !",
+    "converted_waiting_upload": "Tâche terminée (réussi %d / échec %d), téléchargement en cours du fichier...",
+    "download_sticker_set": "Télécharger l'ensemble du pack de stickers",
+    "reload_config_success": "Fichier de configuration rechargé avec succès",
+    "queue_abort_btn": "Annuler la file d'attente",
+    "queue_aborted": "Annulation de la file d'attente réussie !",
+    "queue_process": "En attente dans la file d'attente pour vous, il y a %d tâches en attente de traitement...",
+    "err_rate_reach_limit": "Soyez un peu plus lent, je n'en peux plus (>_<) !",
+    "err_sys_busy": "Système occupé, veuillez réessayer plus tard !",
+    "err_no_permission": "Vous n'avez pas la permission d'utiliser cette fonctionnalité",
+    "err_reach_limit": "Vous êtes autorisé à utiliser le service %d fois toutes les 24 heures. Vous avez déjà atteint cette limite.",
+    "err_failed_to_download": "Échec du téléchargement",
+    "err_sys_failure_occurred": "Échec système",
+    "err_failed": "Échec",
+    "err_timeout": "Temps imparti dépassé !",
+    "err_upload_failed": "Échec du téléversement !",
+    "err_sticker_not_support": "Ce sticker n'est pas pris en charge pour le téléchargement",
+    "err_convert_failed": "Échec de la conversion du fichier",
+    "err_send_file_failed": "Échec de l'envoi du fichier",
+    "err_sticker_set_amount_reach_limit": "Ce pack de stickers contient un nombre excessif de stickers. Veuillez envoyer les stickers individuellement ou utiliser la version auto-hébergée de l'application."
+  }
+}
