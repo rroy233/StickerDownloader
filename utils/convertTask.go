@@ -43,6 +43,12 @@ func (task *ConvertTask) Run(ctx context.Context) error {
 		task.InputFilePath = task.InputFilePath + ".json"
 		//handle it to rlottie
 		cmd = exec.CommandContext(ctx, rlottieExcutablePath, strings.Split(fmt.Sprintf("%s 200x200", task.InputFilePath), " ")...)
+		//remember to delete xxx.tgs.json
+		defer func() {
+			if err := os.Remove(task.InputFilePath); err != nil {
+				logger.Warn.Println("failed to remove", task.InputFilePath)
+			}
+		}()
 	} else {
 		cmd = exec.CommandContext(ctx, ffmpegExecutablePath, strings.Split(fmt.Sprintf("-y -i %s -vf scale=-1:-1 -r 20 %s", task.InputFilePath, task.OutputFilePath), " ")...)
 	}

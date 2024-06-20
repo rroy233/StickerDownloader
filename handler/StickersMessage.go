@@ -93,7 +93,7 @@ func StickerMessage(update tgbotapi.Update) {
 		err = convertTask.Run(ctx)
 		cancel()
 		if err != nil {
-			logger.Error.Println(userInfo+"failed to convert:", err)
+			logger.Error.Println(userInfo+"failed to convert:", err, convertTask.OutputFilePath)
 			utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrConvertFailed)
 			return
 		}
