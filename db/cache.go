@@ -254,7 +254,10 @@ func CacheSticker(sticker tgbotapi.Sticker, convertedFilePath string) (*StickerI
 	item.FileExt = utils.GetFileExtName(convertedFilePath)
 	item.SavePath = fmt.Sprintf("%s/%d_%s.%s", cacheDir, item.SaveTimeStamp, utils.MD5(sticker.FileUniqueID), item.FileExt)
 
-	stat, _ := os.Stat(convertedFilePath)
+	stat, err := os.Stat(convertedFilePath)
+	if err != nil {
+		return nil, errors.New("os.Stat(convertedFilePath) error:" + err.Error())
+	}
 	item.Size = stat.Size()
 
 	fileMd5, err := utils.MD5File(convertedFilePath)
