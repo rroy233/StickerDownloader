@@ -10,6 +10,7 @@ import (
 	"github.com/rroy233/StickerDownloader/statistics"
 	"github.com/rroy233/StickerDownloader/utils"
 	"gopkg.in/rroy233/logger.v2"
+	"runtime/debug"
 	"strings"
 	"time"
 )
@@ -25,6 +26,14 @@ func Handle(update tgbotapi.Update) {
 	statistics.Statistics.RecordUser(utils.MD5Short(fmt.Sprintf("%d", utils.GetUID(&update))))
 
 	logger.Info.Println(utils.LogUserInfo(&update) + utils.JsonEncode(update))
+
+	//recover
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Error.Printf("[APP CRUSHED]%v %s", r, string(debug.Stack()))
+			utils.SendPlainText(&update, languages.Get(&update).BotMsg.ErrSysFailureOccurred)
+		}
+	}()
 
 	//auto leave channel
 	if update.ChannelPost != nil || update.EditedChannelPost != nil {
