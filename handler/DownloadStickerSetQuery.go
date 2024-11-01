@@ -148,7 +148,7 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 	dequeue(qItem)
 	//Dequeue
 
-	//start upload
+	// try to create a zip file, then get the size of it
 	zipFilePath := fmt.Sprintf("./storage/tmp/%d.zip", time.Now().UnixMicro())
 	err = utils.Compress(folderPath, zipFilePath)
 	if err != nil {
@@ -158,7 +158,7 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 	}
 	utils.EditMsgText(update.CallbackQuery.Message.Chat.ID, msg.MessageID, fmt.Sprintf(languages.Get(&update).BotMsg.ConvertedWaitingUpload, task.finished, task.failed))
 
-	//delete
+	//always need to delete RemoveFile zipFilePath
 	defer utils.RemoveFile(zipFilePath)
 
 	fileStat, err := os.Stat(zipFilePath)
@@ -168,9 +168,14 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 		return
 	}
 
-	if fileStat.Size() > 50*MB {
-		uploadTask := utils.NewUploadFile(zipFilePath, folderPath)
+	uploadTask := utils.NewUploadFile(zipFilePath, folderPath)
 
+	//remember to clean
+	defer uploadTask.Clean()
+
+	//if > 50MB spilt into smaller zip files
+	//if <= 50MB, upload zip file created above in zipFilePath
+	if fileStat.Size() > 50*MB {
 		// upload via Telegram separately
 		err = uploadTask.UploadFragment(&update)
 		if err != nil {
@@ -189,11 +194,9 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 		)
 
 		logger.Info.Println(userInfo + "DownloadStickerSetQuery-upload(Telegram-UploadFragment) successfully！！！")
-
-		uploadTask.Clean()
 	} else {
 		logger.Info.Println(userInfo + "DownloadStickerSetQuery-uploading(Telegram)")
-		_, err = utils.SendFileByPath(&update, zipFilePath)
+		err = uploadTask.UploadSingle(&update)
 		if err != nil {
 			logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to upload:", err)
 			utils.EditMsgText(

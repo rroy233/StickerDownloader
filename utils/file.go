@@ -105,6 +105,11 @@ func (f *UploadFile) UploadFragment(update *tgbotapi.Update) error {
 	return err
 }
 
+func (f *UploadFile) UploadSingle(update *tgbotapi.Update) error {
+	_, err := SendFileByPath(update, f.ZipPath)
+	return err
+}
+
 func (f *UploadFile) Clean() {
 	for _, s := range f.CleanList {
 		err := os.RemoveAll(s)
