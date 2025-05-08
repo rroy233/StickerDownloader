@@ -3,8 +3,13 @@ name: Docker Multi-Arch Release
 on:
   push:
     tags:
-      - '*'  # 仅在发布 tag 时触发
+      - '*'
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag (e.g., v1.2.3)'
+        required: true
+        default: 'manual-latest'
 
 permissions:
   contents: read
@@ -44,9 +49,15 @@ jobs:
           username: ${{ secrets.ALI_USERNAME }}
           password: ${{ secrets.ALI_PASSWORD }}
 
-      - name: Extract Tag Name
-        id: tag
-        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - name: Normalize image tag
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "TAG=${{ github.event.inputs.image_tag }}" >> $GITHUB_ENV
+          else
+            REF=${GITHUB_REF##*/}
+            SAFE_TAG=$(echo "$REF" | sed 's#[^a-zA-Z0-9_.-]#-#g')
+            echo "TAG=$SAFE_TAG" >> $GITHUB_ENV
+          fi
 
       - name: Build and push multi-platform image
         uses: docker/build-push-action@v5
