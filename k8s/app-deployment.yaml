@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-storage-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi # 可更改
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-log-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sticker-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sticker-app
+  template:
+    metadata:
+      labels:
+        app: sticker-app
+    spec:
+      containers:
+        - name: app
+          image: rroy233/stickerdownloader:latest
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config.yaml
+              subPath: config.yaml
+            - name: log-volume
+              mountPath: /app/log
+            - name: storage-volume
+              mountPath: /app/storage
+      volumes:
+        - name: config-volume
+          configMap:
+            name: app-config
+        - name: log-volume
+          persistentVolumeClaim:
+            claimName: app-log-pvc
+        - name: storage-volume
+          persistentVolumeClaim:
+            claimName: app-storage-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sticker-app
+spec:
+  selector:
+    app: sticker-app
+  ports:
+    - port: 8080
+      targetPort: 8080

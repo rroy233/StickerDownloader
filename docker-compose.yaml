@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: sticker_app
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config.yaml:/app/config.yaml           # 配置文件挂载
+      - ./storage:/app/storage                           # 存储卷挂载
+      - ./log:/app/log                                   # 日志目录挂载
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7
+    container_name: sticker_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
