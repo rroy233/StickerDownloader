@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/OvyFlash/telegram-bot-api"
 	"github.com/rroy233/StickerDownloader/config"
 	"github.com/rroy233/StickerDownloader/db"
 	"github.com/rroy233/StickerDownloader/languages"
@@ -61,7 +61,7 @@ func DownloadStickerSetQuery(update tgbotapi.Update) {
 	utils.CallBack(update.CallbackQuery.ID, "ok")
 
 	oMsg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, languages.Get(&update).BotMsg.Processing)
-	oMsg.ReplyToMessageID = update.CallbackQuery.Message.ReplyToMessage.MessageID
+	oMsg.ReplyParameters.MessageID = update.CallbackQuery.Message.ReplyToMessage.MessageID
 	msg, err := utils.BotSend(oMsg)
 	if err != nil {
 		logger.Error.Println(userInfo+"DownloadStickerSetQuery-failed to send <processing> msg:", err)

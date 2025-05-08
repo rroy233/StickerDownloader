@@ -1,8 +1,8 @@
 package db
 
 import (
+	tgbotapi "github.com/OvyFlash/telegram-bot-api"
 	_ "github.com/go-sql-driver/mysql"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 type StickerItem struct {

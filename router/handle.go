@@ -2,7 +2,7 @@ package router
 
 import (
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/OvyFlash/telegram-bot-api"
 	"github.com/rroy233/StickerDownloader/config"
 	"github.com/rroy233/StickerDownloader/db"
 	"github.com/rroy233/StickerDownloader/handler"
@@ -60,8 +60,6 @@ func Handle(update tgbotapi.Update) {
 			handler.HelpCommand(update)
 		case "getlimit":
 			handler.GetLimitCommand(update)
-		case "invite":
-			handler.InviteCommand(update)
 		case "admin": //admin
 			handler.AdminCommand(update)
 		case "reload": //admin

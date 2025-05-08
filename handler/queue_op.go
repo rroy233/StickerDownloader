@@ -3,7 +3,7 @@ package handler
 import (
 	"errors"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/OvyFlash/telegram-bot-api"
 	"github.com/rroy233/StickerDownloader/db"
 	"github.com/rroy233/StickerDownloader/languages"
 	"github.com/rroy233/StickerDownloader/utils"

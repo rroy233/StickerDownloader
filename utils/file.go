@@ -5,7 +5,7 @@ import (
 	"bufio"
 	"crypto/md5"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/OvyFlash/telegram-bot-api"
 	"gopkg.in/rroy233/logger.v2"
 	"io"
 	"os"

@@ -1,7 +1,7 @@
 package handler
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/OvyFlash/telegram-bot-api"
 	"github.com/rroy233/StickerDownloader/utils"
 	"gopkg.in/rroy233/logger.v2"
 )
@@ -51,8 +51,10 @@ func AutoLeave(update tgbotapi.Update) {
 	}
 
 	cf := tgbotapi.LeaveChatConfig{
-		ChatID:          chatID,
-		ChannelUsername: ChatUsername,
+		ChatConfig: tgbotapi.ChatConfig{
+			ChatID:          chatID,
+			ChannelUsername: ChatUsername,
+		},
 	}
 	err = utils.BotRequest(cf)
 	if err != nil {

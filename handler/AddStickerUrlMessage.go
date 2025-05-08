@@ -2,7 +2,7 @@ package handler
 
 import (
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/OvyFlash/telegram-bot-api"
 	"github.com/rroy233/StickerDownloader/config"
 	"github.com/rroy233/StickerDownloader/languages"
 	"github.com/rroy233/StickerDownloader/utils"
@@ -65,7 +65,7 @@ func AddStickerUrlMessage(update tgbotapi.Update) {
 	}
 
 	msgTpl := tgbotapi.NewMessage(update.Message.Chat.ID, languages.Get(&update).BotMsg.Processing)
-	msgTpl.ReplyToMessageID = StickerMsg.MessageID
+	msgTpl.ReplyParameters.MessageID = StickerMsg.MessageID
 	replyMsg, err := utils.BotSend(msgTpl)
 	if err != nil {
 		logger.Error.Println(userInfo+"bot.Send error", err)

@@ -1,6 +1,6 @@
 package utils
 
-import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+import tgbotapi "github.com/OvyFlash/telegram-bot-api"
 
 func EntityBold(text, boldPart string) tgbotapi.MessageEntity {
 	offset, length := getPartIndex(text, boldPart)

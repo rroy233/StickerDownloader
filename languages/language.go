@@ -3,7 +3,7 @@ package languages
 import (
 	"encoding/json"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/OvyFlash/telegram-bot-api"
 	"github.com/rroy233/StickerDownloader/config"
 	"gopkg.in/rroy233/logger.v2"
 	"os"

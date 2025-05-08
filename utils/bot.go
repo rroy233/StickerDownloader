@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/OvyFlash/telegram-bot-api"
 	"github.com/rroy233/StickerDownloader/statistics"
 	"gopkg.in/rroy233/logger.v2"
 	"io/ioutil"
@@ -32,7 +32,7 @@ func SendPlainText(update *tgbotapi.Update, text string, entity ...tgbotapi.Mess
 	var msg tgbotapi.MessageConfig
 	if update.Message != nil {
 		msg = tgbotapi.NewMessage(update.Message.Chat.ID, text)
-		msg.ReplyToMessageID = update.Message.MessageID
+		msg.ReplyParameters.MessageID = update.Message.MessageID
 		if entity != nil {
 			msg.Entities = entity
 		}
@@ -74,16 +74,18 @@ func SendFileByPath(update *tgbotapi.Update, filePath string) (tgbotapi.Message,
 
 	var msg tgbotapi.MediaGroupConfig
 	file := tgbotapi.FilePath(filePath)
+	doc := tgbotapi.NewInputMediaDocument(file)
+
 	if update.Message != nil {
-		msg = tgbotapi.NewMediaGroup(update.Message.Chat.ID, []interface{}{tgbotapi.NewInputMediaDocument(file)})
+		msg = tgbotapi.NewMediaGroup(update.Message.Chat.ID, []tgbotapi.InputMedia{&doc})
 	} else if update.CallbackQuery != nil || update.CallbackQuery.Message != nil {
-		msg = tgbotapi.NewMediaGroup(update.CallbackQuery.Message.Chat.ID, []interface{}{tgbotapi.NewInputMediaDocument(file)})
+		msg = tgbotapi.NewMediaGroup(update.CallbackQuery.Message.Chat.ID, []tgbotapi.InputMedia{&doc})
 	}
 
 	Limiter.Take()
 
 	//bot.SendMediaGroup(msg)
-	//github.com/go-telegram-bot-api/telegram-bot-api/v5这个库有bug
+	//github.com/OvyFlash/telegram-bot-api这个库有bug
 	//运行一段时间之后的http请求会得到500 Internal Server Error的异常响应
 	//考虑到该库处于年久失修的状态，且目前暂不考虑使更换此项目的tg机器人库
 	//若遇到上述问题，重启一下即可解决
@@ -118,10 +120,12 @@ func SendFileByFileID(update *tgbotapi.Update, fileID string) error {
 
 	var msg tgbotapi.MediaGroupConfig
 	file := tgbotapi.FileID(fileID)
+	doc := tgbotapi.NewInputMediaDocument(file)
+
 	if update.Message != nil {
-		msg = tgbotapi.NewMediaGroup(update.Message.Chat.ID, []interface{}{tgbotapi.NewInputMediaDocument(file)})
+		msg = tgbotapi.NewMediaGroup(update.Message.Chat.ID, []tgbotapi.InputMedia{&doc})
 	} else if update.CallbackQuery != nil || update.CallbackQuery.Message != nil {
-		msg = tgbotapi.NewMediaGroup(update.CallbackQuery.Message.Chat.ID, []interface{}{tgbotapi.NewInputMediaDocument(file)})
+		msg = tgbotapi.NewMediaGroup(update.CallbackQuery.Message.Chat.ID, []tgbotapi.InputMedia{&doc})
 	}
 
 	Limiter.Take()
@@ -154,7 +158,7 @@ func SendSticker(update *tgbotapi.Update, fileID string) {
 	var msg tgbotapi.StickerConfig
 	if update.Message != nil {
 		msg = tgbotapi.NewSticker(update.Message.Chat.ID, tgbotapi.FileID(fileID))
-		msg.ReplyToMessageID = update.Message.MessageID
+		msg.ReplyParameters.MessageID = update.Message.MessageID
 		addToSendQueue(msg)
 	} else if update.CallbackQuery != nil || update.CallbackQuery.Message != nil {
 		msg = tgbotapi.NewSticker(update.CallbackQuery.Message.Chat.ID, tgbotapi.FileID(fileID))
@@ -169,7 +173,7 @@ func SendPlainTextWithKeyboard(update *tgbotapi.Update, text string, keyboard *t
 	var msg tgbotapi.MessageConfig
 	if update.Message != nil {
 		msg = tgbotapi.NewMessage(update.Message.Chat.ID, text)
-		msg.ReplyToMessageID = update.Message.MessageID
+		msg.ReplyParameters.MessageID = update.Message.MessageID
 		msg.ReplyMarkup = *keyboard
 		if entity != nil {
 			msg.Entities = entity

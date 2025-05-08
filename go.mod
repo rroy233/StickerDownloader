@@ -1,11 +1,13 @@
 module github.com/rroy233/StickerDownloader
 
-go 1.19
+go 1.23
+
+toolchain go1.23.9
 
 require (
+	github.com/OvyFlash/telegram-bot-api v0.0.0-20250501121306-e13ca08617c9
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.7.0
-	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/google/uuid v1.3.0
 	go.uber.org/ratelimit v0.2.0
 	gopkg.in/rroy233/logger.v2 v2.0.1

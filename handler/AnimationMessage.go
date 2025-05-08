@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/OvyFlash/telegram-bot-api"
 	"github.com/rroy233/StickerDownloader/config"
 	"github.com/rroy233/StickerDownloader/db"
 	"github.com/rroy233/StickerDownloader/languages"
@@ -16,7 +16,7 @@ func AnimationMessage(update tgbotapi.Update) {
 	userInfo := utils.GetLogPrefixMessage(&update)
 
 	oMsg := tgbotapi.NewMessage(update.Message.Chat.ID, languages.Get(&update).BotMsg.Processing)
-	oMsg.ReplyToMessageID = update.Message.MessageID
+	oMsg.ReplyParameters.MessageID = update.Message.MessageID
 	msg, err := utils.BotSend(oMsg)
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to send msg:", err)
