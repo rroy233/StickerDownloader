@@ -3,22 +3,23 @@ name: Docker Multi-Arch Release
 on:
   push:
     tags:
-      - '*'
+      - '*'  # 自动触发：任何 tag 推送都会触发
   workflow_dispatch:
     inputs:
       image_tag:
-        description: 'Docker image tag (e.g., v1.2.3)'
+        description: 'Image tag to use (e.g., v1.2.3)'
         required: true
         default: 'manual-latest'
-
-permissions:
-  contents: read
-  packages: write
+      push_latest:
+        description: 'Also tag and push as latest?'
+        required: false
+        default: 'true'
 
 jobs:
   docker:
-    name: Build and Push Docker Images
+    name: Build & Push Docker Images
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
@@ -29,7 +30,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Login to DockerHub
+      - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -49,25 +50,35 @@ jobs:
           username: ${{ secrets.ALI_USERNAME }}
           password: ${{ secrets.ALI_PASSWORD }}
 
-      - name: Normalize image tag
+      - name: Resolve tag
+        id: tag
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "TAG=${{ github.event.inputs.image_tag }}" >> $GITHUB_ENV
+            echo "PUSH_LATEST=${{ github.event.inputs.push_latest }}" >> $GITHUB_ENV
           else
-            REF=${GITHUB_REF##*/}
-            SAFE_TAG=$(echo "$REF" | sed 's#[^a-zA-Z0-9_.-]#-#g')
-            echo "TAG=$SAFE_TAG" >> $GITHUB_ENV
+            TAG_NAME="${GITHUB_REF##*/}"
+            echo "TAG=${TAG_NAME}" >> $GITHUB_ENV
+            echo "PUSH_LATEST=true" >> $GITHUB_ENV
           fi
 
-      - name: Build and push multi-platform image
+      - name: Show resolved tags
+        run: |
+          echo "Resolved image tag: $TAG"
+          echo "Push latest: $PUSH_LATEST"
+
+      - name: Build and push Docker images
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/stickerdownloader:${{ env.TAG }}
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/stickerdownloader:${{ env.TAG }}
             ghcr.io/${{ github.repository_owner }}/stickerdownloader:${{ env.TAG }}
             ${{ secrets.ALI_REGISTRY }}/${{ secrets.ALI_USERNAME }}/stickerdownloader:${{ env.TAG }}
+            ${{ env.PUSH_LATEST == 'true' && format('docker.io/{0}/stickerdownloader:latest', secrets.DOCKERHUB_USERNAME) || '' }}
+            ${{ env.PUSH_LATEST == 'true' && format('ghcr.io/{0}/stickerdownloader:latest', github.repository_owner) || '' }}
+            ${{ env.PUSH_LATEST == 'true' && format('{0}/{1}/stickerdownloader:latest', secrets.ALI_REGISTRY, secrets.ALI_USERNAME) || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

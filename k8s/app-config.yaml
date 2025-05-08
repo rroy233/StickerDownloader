@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: app-config
-type: Opaque
-data:
-  config.yaml:

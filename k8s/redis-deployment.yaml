@@ -26,6 +26,4 @@ spec:
   selector:
     app: redis
   ports:
-    - protocol: TCP
-      port: 6379
-      targetPort: 6379
+    - port: 6379
