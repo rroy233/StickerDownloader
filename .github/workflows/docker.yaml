@@ -68,6 +68,6 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/stickerdownloader:${{ env.TAG }}
             ghcr.io/${{ github.repository_owner }}/stickerdownloader:${{ env.TAG }}
-            ${{ secrets.ALI_REGISTRY }}/stickerdownloader:${{ env.TAG }}
+            ${{ secrets.ALI_REGISTRY }}/${{ secrets.ALI_USERNAME }}/stickerdownloader:${{ env.TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
