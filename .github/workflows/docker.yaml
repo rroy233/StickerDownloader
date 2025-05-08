@@ -76,9 +76,9 @@ jobs:
           tags: |
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/stickerdownloader:${{ env.TAG }}
             ghcr.io/${{ github.repository_owner }}/stickerdownloader:${{ env.TAG }}
-            ${{ secrets.ALI_REGISTRY }}/${{ secrets.ALI_USERNAME }}/stickerdownloader:${{ env.TAG }}
+            ${{ secrets.ALI_REGISTRY }}/rroy233/stickerdownloader:${{ env.TAG }}
             ${{ env.PUSH_LATEST == 'true' && format('docker.io/{0}/stickerdownloader:latest', secrets.DOCKERHUB_USERNAME) || '' }}
             ${{ env.PUSH_LATEST == 'true' && format('ghcr.io/{0}/stickerdownloader:latest', github.repository_owner) || '' }}
-            ${{ env.PUSH_LATEST == 'true' && format('{0}/{1}/stickerdownloader:latest', secrets.ALI_REGISTRY, secrets.ALI_USERNAME) || '' }}
+            ${{ env.PUSH_LATEST == 'true' && format('{0}/rroy233/stickerdownloader:latest', secrets.ALI_REGISTRY) || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
