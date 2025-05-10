@@ -10,6 +10,15 @@ general:
   support_tgs_file: false
   max_amount_per_req: 100
 
+community:
+  enable: true
+  force_channel_sub: true
+  reward_on_sub: true
+  channel:
+    username: "@your_channel"
+  reward:
+    extra_download_times: 3
+
 cache:
   enabled: false
   storage_dir: "./storage/cache"

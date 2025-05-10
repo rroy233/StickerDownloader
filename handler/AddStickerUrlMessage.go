@@ -73,7 +73,7 @@ func AddStickerUrlMessage(update tgbotapi.Update) {
 		return
 	}
 
-	text := fmt.Sprintf(languages.Get(&update).BotMsg.StickersSetInfoFromUrl, stickerSet.Name, len(stickerSet.Stickers))
+	text := fmt.Sprintf(languages.Get(&update).BotMsg.StickersSetInfoFromURL, stickerSet.Name, len(stickerSet.Stickers))
 	err = utils.BotRequest(tgbotapi.NewEditMessageTextAndMarkup(update.Message.Chat.ID, replyMsg.MessageID, text, tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData(languages.Get(&update).BotMsg.DownloadStickerSet, DownloadStickerSetCallbackQuery)),
 	)))

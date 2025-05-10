@@ -35,19 +35,44 @@ func Handle(update tgbotapi.Update) {
 		}
 	}()
 
+	//not handle channel post
+	if update.ChannelPost != nil {
+		logger.Debug.Println("[ChannelPost] Ignored")
+		return
+	}
+
 	//auto leave channel
-	if update.ChannelPost != nil || update.EditedChannelPost != nil {
-		handler.AutoLeave(update)
+	if !config.Get().Community.Enable {
+		if update.ChannelPost != nil || update.EditedChannelPost != nil {
+			handler.AutoLeave(update)
+			return
+		}
+		//auto leave group
+		if update.Message != nil && update.Message.LeftChatMember != nil && (update.Message.Chat.Type == "group" || update.Message.Chat.Type == "supergroup") {
+			handler.AutoLeave(update)
+			return
+		}
+		if update.MyChatMember != nil && (update.MyChatMember.Chat.Type == "channel" || update.MyChatMember.Chat.Type == "group" || update.MyChatMember.Chat.Type == "supergroup") {
+			handler.AutoLeave(update)
+			return
+		}
+	}
+
+	//channel force subscription check
+	if config.Get().Community.Enable && config.Get().Community.ForceChannelSub && !utils.CheckUserSubscription(&update, config.Get().Community.Channel.Username) {
+		extraText := ""
+		if config.Get().Community.RewardOnSub {
+			extraText = fmt.Sprintf(languages.Get(&update).BotMsg.CommChannelExtraTimesNoti, config.Get().Community.Reward.ExtraDownloadTimes)
+		}
+		utils.SendPlainText(&update, fmt.Sprintf(languages.Get(&update).BotMsg.CommChannelSubscriptionNoti, extraText, "https://t.me/"+config.Get().Community.Channel.Username[1:]))
 		return
 	}
-	//auto leave group
-	if update.Message != nil && update.Message.LeftChatMember != nil && (update.Message.Chat.Type == "group" || update.Message.Chat.Type == "supergroup") {
-		handler.AutoLeave(update)
-		return
-	}
-	if update.MyChatMember != nil && (update.MyChatMember.Chat.Type == "channel" || update.MyChatMember.Chat.Type == "group" || update.MyChatMember.Chat.Type == "supergroup") {
-		handler.AutoLeave(update)
-		return
+	//channel subscription reward
+	if config.Get().Community.Enable && config.Get().Community.RewardOnSub {
+		added := db.RewardDailyOnce(&update, config.Get().Community.Reward.ExtraDownloadTimes)
+		if added != 0 {
+			utils.SendPlainText(&update, fmt.Sprintf(languages.Get(&update).BotMsg.CommRewardAddedNoti, added))
+		}
 	}
 
 	//command

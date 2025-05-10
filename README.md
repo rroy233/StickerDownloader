@@ -89,6 +89,15 @@ general:
   support_tgs_file: false # 是否开启tgs表情支持
   max_amount_per_req: 100 # 下载整套表情包时允许的最大数量
 
+community: # v1.7.5新增
+  enable: false                     # 是否启用社区互动功能（所有子功能开关）
+  force_channel_sub: true         # 是否强制要求订阅频道
+  reward_on_sub: true             # 用户加入频道是否给予奖励（如增加次数）
+  channel:
+    username: "@your_channel"
+  reward:
+    extra_download_times: 30       # 奖励增加的下载次数
+
 cache:
   enabled: false # 是否启用文件缓存(需要使用Redis)
   storage_dir: "./storage/cache" # 文件缓存存放位置

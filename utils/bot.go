@@ -374,3 +374,24 @@ func RandString() string {
 	rand.Seed(time.Now().UnixNano())
 	return MD5Short(fmt.Sprintf("%d_%d", time.Now().UnixNano(), rand.Int()))
 }
+
+// CheckUserSubscription 检查用户是否订阅频道
+func CheckUserSubscription(update *tgbotapi.Update, channelUsername string) bool {
+	userID := GetUID(update)
+
+	member, err := bot.GetChatMember(tgbotapi.GetChatMemberConfig{
+		ChatConfigWithUser: tgbotapi.ChatConfigWithUser{
+			ChatConfig: tgbotapi.ChatConfig{
+				ChannelUsername: channelUsername,
+			},
+			UserID: userID,
+		},
+	})
+	if err != nil {
+		logger.Error.Println("GetChatMember error:", err)
+		return false
+	}
+	//logger.Debug.Println(JsonEncode(member))
+	status := member.Status
+	return status == "member" || status == "administrator" || status == "creator"
+}

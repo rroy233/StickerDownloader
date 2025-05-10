@@ -4,6 +4,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
+	"strings"
 )
 
 var cf *Config
@@ -21,6 +22,17 @@ type Config struct {
 		SupportTGSFile          bool   `yaml:"support_tgs_file"`
 		MaxAmountPerReq         int    `yaml:"max_amount_per_req"`
 	} `yaml:"general"`
+	Community struct {
+		Enable          bool `yaml:"enable"`
+		ForceChannelSub bool `yaml:"force_channel_sub"`
+		RewardOnSub     bool `yaml:"reward_on_sub"`
+		Channel         struct {
+			Username string `yaml:"username"`
+		} `yaml:"channel"`
+		Reward struct {
+			ExtraDownloadTimes int `yaml:"extra_download_times"`
+		} `yaml:"reward"`
+	} `yaml:"community"`
 	Cache struct {
 		Enabled            bool   `yaml:"enabled"`
 		StorageDir         string `yaml:"storage_dir"`
@@ -62,6 +74,19 @@ func Init() {
 	//validate config
 	if cf.General.MaxAmountPerReq == 0 {
 		log.Fatalln("General.MaxAmountPerReq should NOT be 0")
+	}
+
+	//community
+	if cf.Community.Enable {
+		if cf.Community.Channel.Username == "" || cf.Community.Channel.Username == "@your_channel" {
+			log.Fatalln("You have enabled the community setting, but you did not provide the correct channel username")
+		}
+		if !strings.HasPrefix(cf.Community.Channel.Username, "@") {
+			log.Fatalln("The channel name should start with @, for example @your_channel")
+		}
+		if cf.Community.RewardOnSub && cf.Community.Reward.ExtraDownloadTimes == 0 {
+			log.Println("[WARN] You have enabled channel subscription rewards, but the number of rewards you set is 0")
+		}
 	}
 }
 

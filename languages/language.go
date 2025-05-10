@@ -21,7 +21,7 @@ type LanguageStruct struct {
 	} `json:"system"`
 	BotMsg struct {
 		Processing                    string `json:"processing"`
-		StickersSetInfoFromUrl        string `json:"stickers_set_info_from_url"`
+		StickersSetInfoFromURL        string `json:"stickers_set_info_from_url"`
 		DownloadingWithProgress       string `json:"downloading_with_progress"`
 		UploadedThirdParty            string `json:"uploaded_third_party"`
 		UploadedTelegram              string `json:"uploaded_telegram"`
@@ -35,6 +35,9 @@ type LanguageStruct struct {
 		QueueAbortBtn                 string `json:"queue_abort_btn"`
 		QueueAborted                  string `json:"queue_aborted"`
 		QueueProcess                  string `json:"queue_process"`
+		CommChannelSubscriptionNoti   string `json:"comm_channel_subscription_noti"`
+		CommChannelExtraTimesNoti     string `json:"comm_channel_extra_times_noti"`
+		CommRewardAddedNoti           string `json:"comm_reward_added_noti"`
 		ErrRateReachLimit             string `json:"err_rate_reach_limit"`
 		ErrSysBusy                    string `json:"err_sys_busy"`
 		ErrNoPermission               string `json:"err_no_permission"`

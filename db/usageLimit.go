@@ -6,6 +6,8 @@ import (
 	tgbotapi "github.com/OvyFlash/telegram-bot-api"
 	"github.com/go-redis/redis/v8"
 	"github.com/rroy233/StickerDownloader/config"
+	"github.com/rroy233/StickerDownloader/utils"
+	"gopkg.in/rroy233/logger.v2"
 	"strconv"
 	"time"
 )
@@ -78,4 +80,34 @@ func GetLimit(UID int64) int {
 		return config.Get().General.UserDailyLimit
 	}
 	return config.Get().General.UserDailyLimit - limitTimes
+}
+
+// RewardDailyOnce increases user's usage limit once per day (if not already rewarded)
+func RewardDailyOnce(update *tgbotapi.Update, reward int) int {
+	UID := utils.GetUID(update)
+
+	rewardKey := fmt.Sprintf("%s:DailyRewarded:%d", ServicePrefix, UID)
+	rewarded, err := rdb.Get(ctx, rewardKey).Result()
+	if err == nil && rewarded == "1" {
+		// Already rewarded today
+		return 0
+	}
+
+	// Mark as rewarded today with 24h expiry
+	rdb.Set(ctx, rewardKey, "1", 24*time.Hour)
+
+	// Increase usage limit
+	limitKey := fmt.Sprintf("%s:UserLimit:%d", ServicePrefix, UID)
+	limit := rdb.Get(ctx, limitKey).Val()
+	if limit == "" {
+		rdb.Set(ctx, limitKey, reward, 24*time.Hour)
+		return 0
+	}
+
+	limitTimes, _ := strconv.Atoi(limit)
+	rdb.Set(ctx, limitKey, limitTimes+reward, 24*time.Hour)
+
+	logger.Info.Printf("%s [RewardDailyOnce] ADD [%d] -> [%d]", utils.LogUserInfo(update), reward, limitTimes+reward)
+
+	return reward
 }
