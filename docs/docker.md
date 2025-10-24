@@ -1,4 +1,4 @@
-# 🐳 StickerDownloader Docker 部署教程（两种方式）
+# 🐳 StickerDownloader Docker-Compose 部署教程
 
 StickerDownloader 应用，支持以下两种场景：
 

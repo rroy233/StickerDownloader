@@ -29,7 +29,7 @@
 * Download single sticker.
 * Download whole sticker set.
 
-![cover](docs/demo.gif)
+![cover](docs/imgs/demo.gif)
 
 ### Requirement
 

@@ -29,7 +29,7 @@
 * 下载单个表情.
 * 下载整个表情包.
 
-![cover](docs/demo.gif)
+![cover](docs/imgs/demo.gif)
 
 ### 运行要求
 
@@ -38,6 +38,15 @@
 - [lottie2gif](https://github.com/rroy233/lottie2gif) (可选)
 
 ### 使用方法
+
+[Linux宝塔面板一键部署教程](docs/bt-panel.md)
+
+[StickerDownloader Docker-Compose 部署教程](docs/docker.md)
+
+---
+
+以下为本地运行的部署方式
+
 
 #### 下载
 

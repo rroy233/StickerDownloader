@@ -15,7 +15,7 @@ services:
     depends_on:
       - redis
     volumes:
-      - ./config.yaml:/app/config.yaml
+      - ./.env:/app/.env:ro
       - ./log:/app/log
       - ./storage:/app/storage
 
