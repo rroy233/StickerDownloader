@@ -3,6 +3,7 @@
 /lottie2gif/*
 /storage/*
 config.yaml
+.env
 /.idea
 StickerDownloader
 *_test.go

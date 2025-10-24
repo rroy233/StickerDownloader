@@ -11,7 +11,7 @@ general:
   max_amount_per_req: 100
 
 community:
-  enable: true
+  enable: false
   force_channel_sub: true
   reward_on_sub: true
   channel:
