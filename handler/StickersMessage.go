@@ -39,6 +39,8 @@ func StickerMessage(update tgbotapi.Update) {
 	})
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to get file:", err)
+		utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrFailedToDownload)
+		return
 	}
 
 	cacheItem, err := db.FindStickerCacheItem(update.Message.Sticker.FileUniqueID)
@@ -61,6 +63,8 @@ func StickerMessage(update tgbotapi.Update) {
 		tempFilePath, err := utils.DownloadFile(remoteFile.Link(config.Get().General.BotToken))
 		if err != nil {
 			logger.Error.Println(userInfo+"failed to download file:", err)
+			utils.EditMsgText(update.Message.Chat.ID, msg.MessageID, languages.Get(&update).BotMsg.ErrFailedToDownload)
+			return
 		}
 
 		logger.Info.Printf("%sGet sticker %s.%s", userInfo, update.Message.Sticker.SetName, update.Message.Sticker.Emoji)
