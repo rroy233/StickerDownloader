@@ -53,7 +53,7 @@ func (task *ConvertTask) Run(ctx context.Context) error {
 		cmd = exec.CommandContext(ctx, ffmpegExecutablePath, strings.Split(fmt.Sprintf("-y -i %s -vf scale=-1:-1 -r 20 %s", task.InputFilePath, task.OutputFilePath), " ")...)
 	}
 
-	//cmd.Stderr = logWriter{}
+	cmd.Stderr = logWriter{}
 
 	err := cmd.Run()
 	if err != nil {

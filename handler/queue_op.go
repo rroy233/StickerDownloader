@@ -37,49 +37,55 @@ func enqueue(update *tgbotapi.Update, queueEditMsg *tgbotapi.Message) (*db.QItem
 	beginTime := time.Now()
 	waitingNum := -2
 	progressMsgInit := false
+	lastUpdateTime := time.Time{}
 	for true {
 		//timeout
-		if time.Now().Sub(beginTime).Seconds() > float64(db.QueueTimeout) {
+		if time.Since(beginTime).Seconds() > float64(db.QueueTimeout) {
 			utils.EditMsgText(queueEditMsg.Chat.ID, queueEditMsg.MessageID, languages.Get(update).BotMsg.ErrTimeout)
 			return nil, true
 		}
+		
+		front := qItem.QueryFront()
 		//aborted by user or some else
-		if qItem.IsAbort() == true || qItem.QueryFront() == -1 {
+		if qItem.IsAbort() == true || front == -1 {
 			utils.EditMsgText(queueEditMsg.Chat.ID, queueEditMsg.MessageID, languages.Get(update).BotMsg.QueueAborted)
 			return nil, true
 		}
 		//stop waiting,start service
-		if qItem.QueryFront() == 0 {
+		if front == 0 {
 			break
 		}
-		//update waiting progress
-		if progressMsgInit == false {
-			//init msg and inline keyboard
-			err = utils.BotRequest(tgbotapi.NewEditMessageTextAndMarkup(queueEditMsg.Chat.ID, queueEditMsg.MessageID, "Loading...",
-				tgbotapi.NewInlineKeyboardMarkup(
-					tgbotapi.NewInlineKeyboardRow(
-						tgbotapi.NewInlineKeyboardButtonData(languages.Get(update).BotMsg.QueueAbortBtn, QuitQueueCallbackQueryPrefix+qItem.UUID),
+		
+		//update waiting progress (throttled to 3 seconds to avoid Telegram rate limit)
+		if time.Since(lastUpdateTime).Seconds() >= 3 {
+			lastUpdateTime = time.Now()
+			if progressMsgInit == false {
+				//init msg and inline keyboard
+				err = utils.BotRequest(tgbotapi.NewEditMessageTextAndMarkup(queueEditMsg.Chat.ID, queueEditMsg.MessageID, "Loading...",
+					tgbotapi.NewInlineKeyboardMarkup(
+						tgbotapi.NewInlineKeyboardRow(
+							tgbotapi.NewInlineKeyboardButtonData(languages.Get(update).BotMsg.QueueAbortBtn, QuitQueueCallbackQueryPrefix+qItem.UUID),
+						),
 					),
-				),
-			))
-			if err != nil {
-				logger.Error.Println(err)
+				))
+				if err != nil {
+					logger.Error.Println(err)
+				}
+				progressMsgInit = true
+				needRecover = true
+			} else if waitingNum != front {
+				waitingNum = front
+				utils.EditMsgTextAndMarkup(queueEditMsg.Chat.ID, queueEditMsg.MessageID, fmt.Sprintf(languages.Get(update).BotMsg.QueueProcess, waitingNum),
+					tgbotapi.NewInlineKeyboardMarkup(
+						tgbotapi.NewInlineKeyboardRow(
+							tgbotapi.NewInlineKeyboardButtonData(languages.Get(update).BotMsg.QueueAbortBtn, QuitQueueCallbackQueryPrefix+qItem.UUID),
+						),
+					),
+				)
+				needRecover = true
 			}
-			progressMsgInit = true
-			needRecover = true
 		}
-		if waitingNum != qItem.QueryFront() {
-			waitingNum = qItem.QueryFront()
-			utils.EditMsgTextAndMarkup(queueEditMsg.Chat.ID, queueEditMsg.MessageID, fmt.Sprintf(languages.Get(update).BotMsg.QueueProcess, waitingNum),
-				tgbotapi.NewInlineKeyboardMarkup(
-					tgbotapi.NewInlineKeyboardRow(
-						tgbotapi.NewInlineKeyboardButtonData(languages.Get(update).BotMsg.QueueAbortBtn, QuitQueueCallbackQueryPrefix+qItem.UUID),
-					),
-				),
-			)
-			needRecover = true
-		}
-		time.Sleep(3 * time.Second)
+		time.Sleep(500 * time.Millisecond)
 	}
 
 	//recover old msg text
