@@ -7,6 +7,7 @@ import (
 	"github.com/rroy233/StickerDownloader/config"
 	"github.com/rroy233/StickerDownloader/db"
 	"github.com/rroy233/StickerDownloader/languages"
+	"github.com/rroy233/StickerDownloader/statistics"
 	"github.com/rroy233/StickerDownloader/utils"
 	"gopkg.in/rroy233/logger.v2"
 	"time"
@@ -14,6 +15,32 @@ import (
 
 func AnimationMessage(update tgbotapi.Update) {
 	userInfo := utils.GetLogPrefixMessage(&update)
+
+	// 前置缓存检查，跳过排队和下载转码
+	cacheItem, err := db.FindStickerCacheItem(update.Message.Animation.FileUniqueID)
+	if err == nil && cacheItem.ConvertedFileID != "" {
+		statistics.Statistics.Record("CacheHit", 1)
+
+		if err := utils.SendFileByFileID(&update, cacheItem.ConvertedFileID); err != nil {
+			logger.Error.Println(userInfo+"failed to send file via FILE_ID:", err)
+			utils.SendPlainText(&update, fmt.Sprintf("%s(TelegramAPI:%s)", languages.Get(&update).BotMsg.ErrSendFileFailed, err.Error()))
+			return
+		}
+
+		if err = db.ConsumeLimit(&update); err != nil {
+			logger.Error.Println(userInfo + err.Error())
+		}
+
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, languages.Get(&update).BotMsg.ConvertCompleted)
+		msg.ReplyParameters.MessageID = update.Message.MessageID
+		_, err = utils.BotSend(msg)
+		if err != nil {
+			logger.Error.Println(userInfo+"failed to send completed msg:", err)
+		}
+		return
+	}
+
+	statistics.Statistics.Record("CacheMiss", 1)
 
 	oMsg := tgbotapi.NewMessage(update.Message.Chat.ID, languages.Get(&update).BotMsg.Processing)
 	oMsg.ReplyParameters.MessageID = update.Message.MessageID
@@ -83,7 +110,7 @@ func AnimationMessage(update tgbotapi.Update) {
 	dequeue(qItem)
 	//Dequeue
 
-	_, err = utils.SendFileByPath(&update, outPath)
+	sentMsg, err := utils.SendFileByPath(&update, outPath)
 	if err != nil {
 		logger.Error.Println(userInfo+"failed to SendFile:", err)
 		utils.EditMsgText(
@@ -92,6 +119,23 @@ func AnimationMessage(update tgbotapi.Update) {
 			fmt.Sprintf("%s(TelegramAPI:%s)", languages.Get(&update).BotMsg.ErrSendFileFailed, err.Error()),
 		)
 		return
+	}
+
+	// 缓存Animation
+	if config.Get().Cache.Enabled == true {
+		fakeSticker := tgbotapi.Sticker{
+			FileID:       update.Message.Animation.FileID,
+			FileUniqueID: update.Message.Animation.FileUniqueID,
+		}
+		cacheItem, err = db.CacheSticker(fakeSticker, convertTask.OutputFilePath)
+		if err != nil {
+			logger.Error.Println(userInfo+"CacheSticker Error ", err)
+		} else {
+			cacheItem.ConvertedFileID = sentMsg.Document.FileID
+			if err := cacheItem.Update(); err != nil {
+				logger.Error.Println(userInfo+"failed to update cache:", err)
+			}
+		}
 	}
 
 	//Consume the current user's daily limit
