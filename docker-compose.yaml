@@ -6,16 +6,27 @@ services:
     container_name: sticker_redis
     ports:
       - "6379:6379"
+    command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app:
     image: rroy233/stickerdownloader:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: sticker_app
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
     volumes:
-      - ./.env:/app/.env:ro
       - ./log:/app/log
       - ./storage:/app/storage
 

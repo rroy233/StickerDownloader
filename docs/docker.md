@@ -2,7 +2,7 @@
 
 StickerDownloader 应用，支持以下两种场景：
 
-1. **方式一**：使用 `docker-compose` 一键部署 Redis 和 App
+1. **方式一**：使用 `docker-compose` 一键部署 Redis 和 App（推荐）
 2. **方式二**：使用外部 Redis，仅运行 App 容器（连接宿主机或云端 Redis）
 
 ---
@@ -12,7 +12,6 @@ StickerDownloader 应用，支持以下两种场景：
 * 安装好 [Docker](https://docs.docker.com/get-docker/)
 * 安装好 [Docker Compose](https://docs.docker.com/compose/)
 * 克隆或下载本项目源代码
-* 将 `config.example.yaml` 修改为实际配置并命名为 `config.yaml`
 
 **镜像源选择**
 
@@ -30,33 +29,24 @@ StickerDownloader 应用，支持以下两种场景：
 
 ---
 
-### 📄 1. 配置 config.yaml（Redis 使用内部服务）
+### 📄 1. 配置环境变量
 
-```yaml
-redis:
-  server: "redis"          # 对应 docker-compose 的 redis 服务名
-  port: "6379"
-  password: ""
-  tls: false
-  db: 0
-```
-
----
-
-### 🧩 2. 修改默认的docker-compose.yml
-
-```yaml
-  app:
-    image: rroy233/stickerdownloader:latest   # 可替换镜像
-```
-
----
-
-### ▶️ 3. 一键启动
+复制 `.env.example` 并重命名为 `.env`，修改其中的关键配置，特别是 `GENERAL_BOT_TOKEN`。
+对于内置 Redis，配置已默认配好，无需修改。
 
 ```bash
-docker-compose up --build -d
+cp .env.example .env
+nano .env  # 填入你的 BOT_TOKEN
 ```
+
+---
+
+### ▶️ 2. 一键启动
+
+```bash
+docker-compose up -d
+```
+> 若需使用自己修改的代码重新构建镜像，请运行 `docker-compose up --build -d`
 
 ---
 
@@ -64,9 +54,9 @@ docker-compose up --build -d
 
 ---
 
-## 📄 1. 配置 config.yaml（连接外部 Redis）
+## 📄 1. 配置文件（YAML）连接外部 Redis
 
-例如连接宿主机、云端或远程 Redis：
+如果你更习惯使用 YAML 配置文件，复制 `config.example.yaml` 为 `config.yaml`，并连接外部 Redis：
 
 ```yaml
 redis:
@@ -93,7 +83,6 @@ docker run -d \
   -v $(pwd)/storage:/app/storage \
   rroy233/stickerdownloader:latest
 ```
-
 
 # 🧼 清理
 
